@@ -1,0 +1,17 @@
+services:
+  flutter-3.29.0:
+    container_name: codewithwest-flutter
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    # environment:
+    # NODE_ENV: development
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    restart: unless-stopped
+    volumes:
+      - "/home/west/jenkins_data/jenkins_home:/var/jenkins_home"
+    hostname: "jenkins_main"
