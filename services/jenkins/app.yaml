@@ -2,26 +2,29 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: jenkins
+  namespace: argocd
 spec:
   destination:
     name: ''
-    namespace: management
+    namespace: jenkins
     server: 'https://kubernetes.default.svc'
   sources:
-    - path: ''
-      repoURL: 'https://charts.jenkins.io'
-      targetRevision: x
+    # Source 1: The public Jenkins Helm chart repository
+    - repoURL: 'https://charts.jenkins.io'
+      targetRevision: '2.452.2'
       chart: jenkins
       helm:
         valueFiles:
           - $values/values.yaml
+    # Source 2: Your private Git repository containing the values.yaml file
     - repoURL: 'https://github.com/codewithwest/project_platform.git'
       targetRevision: dev
+      path: services/jenkins # <--- Add the path to your values.yaml file
       ref: values
-  project: management
+  project: default
   syncPolicy:
     automated:
-      prune: false
-      selfHeal: false
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
