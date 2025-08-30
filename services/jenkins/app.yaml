@@ -2,11 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: jenkins
-  namespace: argocd
+  namespace: management
 spec:
   destination:
     name: ''
-    namespace: jenkins
+    namespace: management
     server: 'https://kubernetes.default.svc'
   sources:
     # Source 1: The public Jenkins Helm chart repository
