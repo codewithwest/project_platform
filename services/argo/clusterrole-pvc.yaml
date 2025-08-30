@@ -1,0 +1,10 @@
+# clusterrole-pvc.yaml
+# define a ClusterRole that grants permissions to get, list, and watch PVCs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argocd-pvc-viewer
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get", "list", "watch"]
