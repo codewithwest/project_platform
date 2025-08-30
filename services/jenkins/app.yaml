@@ -12,7 +12,6 @@ spec:
     repoURL: https://github.com/codewithwest/project_platform.git
     path: services/jenkins/
     targetRevision: dev
-    chart: jenkins
     helm:
       valueFiles:
         - values.yaml

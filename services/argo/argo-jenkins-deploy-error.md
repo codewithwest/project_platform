@@ -70,3 +70,35 @@ kubectl create clusterrolebinding argocd-application-controller-cluster-admin \
 ```
 
 Note: This alternative approach grants much broader access than necessary and should be used with caution.
+
+# **Resolving Insufficient Permissions for Argo CD Application Controller**
+
+**Error:** Repeated `is forbidden` errors for various Kubernetes resources in the cluster logs
+
+**Cause:** The `argocd-application-controller` service account lacks the necessary permissions to list resources at the cluster scope, preventing the controller from building its cache and managing resources.
+
+**Solution:**
+
+To grant the `argocd-application-controller` service account the necessary permissions, you can bind it to the `cluster-admin` ClusterRole. This will grant it broad, cluster-wide permissions to manage resources across the entire cluster.
+
+**Command:**
+
+```bash
+kubectl create clusterrolebinding argocd-application-controller-binding \
+  --clusterrole=cluster-admin \
+  --serviceaccount=management:argocd-application-controller
+```
+
+**What this command does:**
+
+- Creates a new ClusterRoleBinding named `argocd-application-controller-binding`
+- Binds the `argocd-application-controller` service account to the `cluster-admin` ClusterRole
+- Grants the service account all the necessary permissions to manage resources across the entire cluster
+
+**After applying this command:**
+
+- The Argo CD controller will automatically re-attempt the sync
+- With the new permissions, it will be able to list all cluster resources, build its cache, and then proceed with creating the Jenkins deployment and other resources
+- This will resolve the issue and allow the controller to function correctly
+
+**Note:** Granting the `cluster-admin` ClusterRole to the `argocd-application-controller` service account provides broad permissions, which may not be suitable for all environments. However, in this case, it is necessary to resolve the issue and allow the controller to function correctly.
