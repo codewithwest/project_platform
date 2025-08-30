@@ -15,7 +15,7 @@ spec:
     chart: jenkins
     helm:
       valueFiles:
-        - jenkins-values.yaml
+        - values.yaml
   syncPolicy:
     automated:
       selfHeal: true
