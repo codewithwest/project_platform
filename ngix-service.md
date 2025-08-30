@@ -68,3 +68,14 @@ Confirm that the reverse proxy is working correctly by making a request from wit
 ## Next Steps
 
 Once the reverse proxy is verified to be working on the Ubuntu VM, the final step is to configure iptables rules on your Proxmox host to forward external traffic to the NGINX proxy. This will make your Minikube application accessible from outside the host.
+
+## alias
+
+```sh
+alias k-apply="kubectl -f apply"
+alias edit-nginx="nano /etc/nginx/sites-available/minikube-proxy.conf"
+alias get-pods="kubectl get pods"
+alias get-service="kubectl get service"
+alias test-nginx="nginx -t"
+alias restart-nginx="systemctl restart nginx"
+```

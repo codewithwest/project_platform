@@ -4,7 +4,7 @@ metadata:
   name: node-hello-ingress
 spec:
   rules:
-  - host: node-hello.westdynamics.net # A DNS name for your service
+  - host: node-hello.westdynamics.nets # A DNS name for your service
     http:
       paths:
       - path: /

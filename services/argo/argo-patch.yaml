@@ -1,0 +1,18 @@
+spec:
+  template:
+    spec:
+      volumes:
+        - name: ssh-known-hosts
+          configMap:
+            name: argocd-ssh-known-hosts-cm
+        - name: repo-credentials
+          secret:
+            secretName: argocd-repo-key-secret
+      containers:
+        - name: argocd-repo-server
+          volumeMounts:
+            - name: ssh-known-hosts
+              mountPath: /etc/ssh/ssh_known_hosts
+              subPath: ssh_known_hosts
+            - name: repo-credentials
+              mountPath: /home/argocd/.ssh

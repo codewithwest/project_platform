@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jenkins
+  namespace: management
+spec:
+  destination:
+    namespace: management
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    repoURL: https://github.com/codewithwest/project_platform.git
+    path: services/jenkins/
+    targetRevision: HEAD
+    chart: jenkins
+    helm:
+      valueFiles:
+        - jenkins-values.yaml
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true

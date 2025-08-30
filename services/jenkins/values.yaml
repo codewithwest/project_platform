@@ -1,0 +1,31 @@
+# Source: https://charts.jenkins.io
+controller:
+  serviceType: NodePort
+  tag: 2.452.2
+  persistence:
+    enabled: true
+    storageClass: "standard" # Use a storage class if available, otherwise Minikube's default will work
+    size: 10Gi
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"
+  # You can specify custom plugins here
+  installPlugins:
+    - kubernetes:4158.v3b_6b_1492b_b_13
+    - git:5.2.2
+  controller:
+  # ... other controller settings ...
+  # Add the volumes block to define the hostPath volume
+  volumes:
+    - name: docker-sock
+      hostPath:
+        path: /var/run/docker.sock
+        type: Socket
+  # Add the volumeMounts block to mount the volume into the Jenkins container
+  volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
