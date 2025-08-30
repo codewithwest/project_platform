@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/codewithwest/project_platform.git
     path: services/jenkins/
-    targetRevision: HEAD
+    targetRevision: dev
     chart: jenkins
     helm:
       valueFiles:

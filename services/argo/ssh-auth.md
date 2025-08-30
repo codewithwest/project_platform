@@ -77,7 +77,7 @@ kubectl patch deployment argocd-repo-server -n argocd --patch "$(cat repo-server
 3. Restart the deployment to ensure the new secret volume is mounted correctly:
 
 ```bash
-kubectl rollout restart deployment argocd-repo-server -n argocd
+kubectl rollout restart deployment argocd-repo-server -n management
 ```
 
 ## **Step 5: Verify the setup in Argo CD**
