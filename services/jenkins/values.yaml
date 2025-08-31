@@ -1,7 +1,8 @@
 # Source: https://charts.jenkins.io
 controller:
   serviceType: NodePort
-  tag: x
+  image:
+    tag: '5.8.83'
   persistence:
     enabled: true
     storageClass: "standard" # Use a storage class if available, otherwise Minikube's default will work
