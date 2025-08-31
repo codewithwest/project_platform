@@ -15,7 +15,7 @@ spec:
       chart: jenkins
       helm:
         valueFiles:
-          - $values/values.yaml
+          - $values/services/jenkins/values.yaml
     # Source 2: Your private Git repository containing the values.yaml file
     - repoURL: 'https://github.com/codewithwest/project_platform.git'
       targetRevision: dev
