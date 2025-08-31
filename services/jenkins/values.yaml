@@ -2,7 +2,7 @@
 controller:
   serviceType: NodePort
   image:
-    tag: '5.8.83'
+    tag: 'lts-jdk17'
   persistence:
     enabled: true
     storageClass: "standard" # Use a storage class if available, otherwise Minikube's default will work
