@@ -6,9 +6,9 @@
 # ====================================================================
 # Use the nip.io DNS service for dynamic resolution to your Minikube IP.
 # This avoids manual /etc/hosts file editing.
-# Replace 192.168.100.35 with your actual Minikube IP.
-hostname: core.192.168.100.35.nip.io
-externalURL: https://core.192.168.100.35.nip.io
+# Replace 192.168.49.2 with your actual Minikube IP.
+hostname: core.192.168.49.2.nip.io
+externalURL: https://core.192.168.49.2.nip.io
 
 # Set a temporary password for the admin user.
 # WARNING: This is insecure for production. Change immediately.
@@ -22,7 +22,7 @@ expose:
   type: ingress
   ingress:
     hosts:
-      core: core.192.168.100.35.nip.io
+      core: core.192.168.49.2.nip.io
     annotations:
       # These annotations assume the standard NGINX Ingress controller.
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
