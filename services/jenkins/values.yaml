@@ -2,7 +2,7 @@
 controller:
   serviceType: ClusterIP
   image:
-    tag: 'lts-jdk17'
+    tag: 'latest-jdk21'
   persistence:
     enabled: true
     storageClass: "standard" # Use a storage class if available, otherwise Minikube's default will work
