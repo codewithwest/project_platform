@@ -1,6 +1,6 @@
 # Source: https://charts.jenkins.io
 controller:
-  serviceType: NodePort
+  serviceType: ClusterIP
   image:
     tag: 'lts-jdk17'
   persistence:
