@@ -7,6 +7,9 @@ rules:
   - apiGroups: [""]
     resources: ["pods", "pods/log", "pods/exec"]
     verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["controllerrevisions"]
+    verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -20,4 +23,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: argocd-server
-    namespace: management # Reference the service account within the same namespace
+    namespace: management
