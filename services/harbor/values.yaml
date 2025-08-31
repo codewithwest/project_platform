@@ -1,0 +1,76 @@
+# A minimal Harbor Helm chart values file for Minikube.
+# Use this as a starting point and add more configuration as needed.
+
+# ====================================================================
+# Global Settings
+# ====================================================================
+# Use the nip.io DNS service for dynamic resolution to your Minikube IP.
+# This avoids manual /etc/hosts file editing.
+# Replace 192.168.100.35 with your actual Minikube IP.
+hostname: core.192.168.100.35.nip.io
+externalURL: https://core.192.168.100.35.nip.io
+
+# Set a temporary password for the admin user.
+# WARNING: This is insecure for production. Change immediately.
+harborAdminPassword: "MyHarborAdminPassword"
+
+# ====================================================================
+# Expose Harbor
+# ====================================================================
+# Expose Harbor using an Ingress for a clean URL and HTTPS.
+expose:
+  type: ingress
+  ingress:
+    hosts:
+      core: core.192.168.100.35.nip.io
+    annotations:
+      # These annotations assume the standard NGINX Ingress controller.
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  tls:
+    # Use auto-generated self-signed certificates for testing.
+    certSource: auto
+
+# ====================================================================
+# Persistence Settings
+# ====================================================================
+# Configure persistence using a StorageClass.
+persistence:
+  persistentVolumeClaim:
+    registry:
+      storageClass: standard
+      accessMode: ReadWriteOnce
+      size: 5Gi
+    chartmuseum:
+      storageClass: standard
+      accessMode: ReadWriteOnce
+      size: 1Gi
+    jobservice:
+      storageClass: standard
+      accessMode: ReadWriteOnce
+      size: 1Gi
+
+# ====================================================================
+# Resource Limits (for Minikube)
+# ====================================================================
+# Reduce the replica counts to 1 to minimize resource usage.
+# This is not for production HA setups.
+portal:
+  replicas: 1
+core:
+  replicas: 1
+jobservice:
+  replicas: 1
+registry:
+  replicas: 1
+chartmuseum:
+  replicas: 1
+
+# ====================================================================
+# Internal Database and Redis
+# ====================================================================
+# Use the embedded PostgreSQL and Redis for simplicity.
+database:
+  type: internal
+redis:
+  type: internal
