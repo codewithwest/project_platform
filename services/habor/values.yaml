@@ -1,7 +1,83 @@
-hostname: core.192.168.100.35.nip.io
+# Harbor Helm chart values file for deployment with Ingress on a single-node cluster.
+# For production environments, consult the official Harbor Helm chart documentation
+# for more advanced configurations, including external databases and secrets management.
+
+# 1. Access and Ingress Configuration
+# Expose Harbor using an Ingress for a persistent and clean URL.
 expose:
   type: ingress
   ingress:
+    # Use a nip.io wildcard DNS to route to your Minikube IP.
+    # This automatically resolves 'core.192.168.100.35.nip.io' to '192.168.100.35'.
     hosts:
       core: core.192.168.100.35.nip.io
-harborAdminPassword: "MyTestPassword"
+    # Annotations for your Ingress controller.
+    # Assumes the NGINX Ingress controller is installed.
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  tls:
+    # 'auto' automatically generates self-signed certificates for testing.
+    # For production, use 'secret' and provide a real TLS secret.
+    certSource: auto
+
+# 2. Global Configuration
+# Set the external URL and admin password.
+externalURL: https://core.192.168.100.35.nip.io
+# WARNING: This password should be changed for production deployments.
+# It is recommended to use a Kubernetes secret to manage this.
+harborAdminPassword: "RvDaE1aViR7eMQPV74yVBpTlw"
+
+# 3. Persistence Configuration
+# Enable persistence for all Harbor components.
+persistence:
+  # Use a PersistentVolumeClaim for durable storage.
+  # This assumes your cluster has a 'standard' storage class.
+  persistentVolumeClaim:
+    registry:
+      storageClass: standard
+      accessMode: ReadWriteOnce
+      size: 5Gi
+    chartmuseum:
+      storageClass: standard
+      accessMode: ReadWriteOnce
+      size: 1Gi
+    jobservice:
+      storageClass: standard
+      accessMode: ReadWriteOnce
+      size: 1Gi
+  # Disable emptyDir volumes for production environments.
+  # For test purposes, this is fine.
+  imageChartStorage:
+    type: pvc
+
+# 4. Resources Configuration
+# Adjust resource requests and limits to fit a single-node environment.
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+
+# 5. Disable high-availability features for a single-node setup
+# Replicas are set to 1 for all components to reduce resource usage.
+# Set these to higher values for a production HA setup.
+portal:
+  replicas: 1
+core:
+  replicas: 1
+jobservice:
+  replicas: 1
+registry:
+  replicas: 1
+chartmuseum:
+  replicas: 1
+
+# 6. Database and Redis configuration
+# Use embedded PostgreSQL and Redis for a simple setup.
+database:
+  type: internal
+redis:
+  type: internal
