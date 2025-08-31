@@ -6,18 +6,19 @@ metadata:
 spec:
   destination:
     name: ''
-    namespace: harbor # Harbor should be deployed to its own namespace
+    namespace: management
     server: 'https://kubernetes.default.svc'
   sources:
     # Source 1: The public Harbor Helm chart repository
     - repoURL: 'https://helm.goharbor.io'
-      targetRevision: '1.14.0' # Use a specific, stable chart version
+      targetRevision: '1.14.0'
       chart: harbor
       helm:
         valueFiles:
-          # Path to the values.yaml file relative to the *values source* root
+          # Correct path: Relative to the root of the 'values' source
           - $values/services/harbor/values.yaml
-    # Source 2: Your private Git repository containing the values.yaml file.
+    # Source 2: Your private Git repository containing the values file
+    # The 'path' field is removed from this source to avoid conflict
     - repoURL: 'https://github.com/codewithwest/project_platform.git'
       targetRevision: dev
       ref: values
