@@ -16,14 +16,14 @@ controller:
       memory: "1Gi"
   # You can specify custom plugins here
   installPlugins:
-    - kubernetes:4158.v3b_6b_1492b_b_13
-    - git:5.2.2
-    - blueocean:1.27.16 
-    - docker-workflow:580.vc0c340686b_54 
-    - junit:1307.vdd5b_2646279e 
-    - apache-httpcomponents-client-4-api:4.5.14-208.v438351942757
-    - credentials:1384.vf0a_2ed06f9c6    
-    - branch-api:2.1193.v64a_61471c489
+    - kubernetes:latest
+    - git:latest
+    - blueocean:latest 
+    # - docker-workflow:latest 
+    # - junit:latest
+    # - apache-httpcomponents-client-4-api:latest
+    - credentials:latest    
+    # - branch-api:latest
   # controller:
   # ... other controller settings ...
   # Add the volumes block to define the hostPath volume
