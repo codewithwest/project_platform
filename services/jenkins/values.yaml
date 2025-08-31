@@ -19,11 +19,15 @@ controller:
     - kubernetes:latest
     - git:latest
     - blueocean:latest 
-    # - docker-workflow:latest 
-    # - junit:latest
-    # - apache-httpcomponents-client-4-api:latest
+    - docker-workflow:latest 
+    - junit:latest
+    - apache-httpcomponents-client-4-api:latest
     - credentials:latest    
-    # - branch-api:latest
+    - branch-api:latest
+  startupProbe:
+    initialDelaySeconds: 120 # Wait 120 seconds before starting the checks
+    periodSeconds: 30       # Check every 30 seconds thereafter
+    failureThreshold: 10 
   # controller:
   # ... other controller settings ...
   # Add the volumes block to define the hostPath volume
