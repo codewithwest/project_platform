@@ -21,7 +21,7 @@
 ## **Network Details**
 
 - Proxmox Host IP: 192.168.100.31
-- Ubuntu VM IP: 192.168.100.35
+- Ubuntu VM IP: 192.168.100.39
 - Minikube IP: 192.168.49.2 (Example)
 
 ## **Step 1: Deploy Jenkins on Minikube using Helm**
@@ -93,7 +93,7 @@ server {
 
     location / {
         # Use either the minikube tunnel IP or the minikube IP + NodePort
-        proxy_pass http://<minikube-external-ip>:80;
+        proxy_pass http://<minikube-internal-ip>:80;
         # Or: proxy_pass http://<minikube-ip>:<node-port>;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -113,13 +113,4 @@ sudo systemctl restart nginx
 
 ```bash
 systemctl stop tailscaled
-```
-
-2. Add iptables NAT rules to forward traffic on port 8080 from the Proxmox host to the Ubuntu VM.
-
-```bash
-# On the Proxmox host
-# Replace <proxmox_public_interface> with your interface (e.g., vmbr0)
-iptables -t nat -A PREROUTING -i <proxmox_public_interface> -p tcp --dport 8080 -j DNAT --to-destination 192.168.100.35:8080
-iptables -t nat -A OUTPUT -p tcp --dport 8080 -j DNAT --to-destination 192.168.100.
 ```

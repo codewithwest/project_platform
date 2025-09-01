@@ -38,10 +38,8 @@ kubectl create secret generic repo-secret-codewithwest \
   --from-literal=type=git \
   --from-file=sshPrivateKey=/home/west/.ssh/argocd-repo-key \
   --labels=argocd.argoproj.io/secret-type=repository \
-  -n argocd
+  -n management
 ```
-
-**Note:** If you are using a different namespace, replace `argocd` with your namespace.
 
 ## **Step 4: Patch the Argo CD repo server deployment**
 

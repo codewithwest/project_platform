@@ -17,3 +17,13 @@
 ```sh
 kubectl logs jenkins-0 -n management -c init
 ```
+
+### alias
+
+```sh
+alias get-pods="kubectl get pods"
+alias get-service="kubectl get service"
+alias get-logs="kubectl logs"
+alias ngix-restart="nginx -t; sudo systemctl restart nginx"
+alias
+```
