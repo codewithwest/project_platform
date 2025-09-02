@@ -1,0 +1,67 @@
+# Add volumes and volume mounts for the argocd-repo-server
+repoServer:
+  extraVolumes:
+    - name: ssh-known-hosts
+      configMap:
+        name: argocd-ssh-known-hosts-cm
+    - name: repo-credentials
+      secret:
+        secretName: argocd-repo-key-secret
+  extraVolumeMounts:
+    - name: ssh-known-hosts
+      mountPath: /etc/ssh/ssh_known_hosts
+      subPath: ssh_known_hosts
+    - name: repo-credentials
+      mountPath: /home/argocd/.ssh
+
+# Add the extra Role and RoleBinding for the argocd-server
+# Note: The namespace `management` will be replaced by the Helm release namespace (`-n argocd`).
+server:
+  extraRoles:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        name: argocd-pod-reader
+      rules:
+        - apiGroups: [""]
+          resources: ["pods", "pods/log", "pods/exec"]
+          verbs: ["get", "list", "watch"]
+        - apiGroups: ["apps"]
+          resources: ["controllerrevisions"]
+          verbs: ["get", "list", "watch"]
+  extraRoleBindings:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: argocd-pod-reader-binding
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: Role
+        name: argocd-pod-reader
+      subjects:
+        - kind: ServiceAccount
+          name: argocd-server
+
+# Add the extra ClusterRole and ClusterRoleBinding for the argocd-application-controller
+applicationController:
+  extraClusterRoles:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      metadata:
+        name: argocd-pvc-viewer
+      rules:
+        - apiGroups: [""]
+          resources: ["persistentvolumeclaims"]
+          verbs: ["get", "list", "watch"]
+  extraClusterRoleBindings:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: argocd-pvc-viewer-binding
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: argocd-pvc-viewer
+      subjects:
+        - kind: ServiceAccount
+          name: argocd-application-controller
