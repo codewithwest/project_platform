@@ -1,6 +1,6 @@
 # Minikube Setup
 
-### Here is the Puppet script that automates the installation of Minikube on an Ubuntu Server running within a Proxmox virtual machine:
+### Use Puppet to Install Minikube:
 
 ```puppet
 # Install Minikube on Ubuntu Server
@@ -70,6 +70,12 @@ exec { 'check-minikube-status':
   command     => 'minikube status',
   refreshonly => true,
 }
+
+# Enable the dashboard addon
+exec { 'enable-dashboard':
+  command     => 'minikube addons enable dashboard',
+  refreshonly => true,
+}
 ```
 
 ### This Puppet script automates the installation of Minikube on an Ubuntu Server running within a Proxmox virtual machine. It performs the following tasks:
@@ -92,29 +98,7 @@ Note that this script assumes that the Puppet agent is running on the Ubuntu Ser
 
 To access the Kubernetes dashboard, you need to set it up as a service on the Ubuntu VM. This will allow you to access the dashboard constantly and prevent it from closing when you exit the terminal.
 
-### Step 1: Stop any running dashboard proxies
-
-Press `Ctrl+C` in the terminal to stop any running dashboard proxies.
-
-### Step 2: Enable the dashboard addon
-
-If the dashboard addon is not already enabled, run the following command:
-
-```sh
-minikube addons enable dashboard
-```
-
-### Step 3: Start a persistent proxy using kubectl
-
-Run the following command to start a persistent proxy:
-
-```sh
-kubectl proxy --address='0.0.0.0' --port=8001 &
-```
-
-This command starts a proxy that listens on all network interfaces (`--address='0.0.0.0'`) and sets a consistent, static port for the dashboard (`--port=8001`). The `&` at the end of the command runs it in the background, allowing you to close the terminal without stopping the proxy.
-
-### Step 4: Create a systemd service
+### Step 1: Create a systemd service
 
 Create a systemd service to start the proxy automatically with the VM. Create a new file called `minikube-dashboard.service` in the `/etc/systemd/system` directory:
 
@@ -153,20 +137,6 @@ sudo systemctl start minikube-dashboard.service
 
 ### Step 6: Access the dashboard
 
-You can now access the dashboard by navigating to the following URL in a web browser on your Proxmox host or any machine on the same network:
-
-```
-http://YOUR_UBUNTU_VM_IP:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
-```
-
-You will need to authenticate using a token. To retrieve the token, run the following command on your Ubuntu VM:
-
-```sh
-kubectl get secret -n kubernetes-dashboard -o=jsonpath="{.items[?(@.metadata.annotations['kubernetes\.io/service-account\.name']=='kubernetes-dashboard')].data.token}" | base64 --decode
-```
-
-Copy the token and paste it into the dashboard login screen.
-
 # Setting up NGINX as a Reverse Proxy for Minikube Dashboard
 
 Using NGINX as a reverse proxy is a standard and effective way to expose services running inside your Proxmox VM to your network. This approach allows you to route traffic to the Minikube dashboard and other applications via the VM's IP address and a standard port, such as 80 (HTTP) or 443 (HTTPS).
@@ -179,23 +149,8 @@ Using NGINX as a reverse proxy is a standard and effective way to expose service
 
 ## Step 1: Install NGINX on the Ubuntu VM
 
-### Update the package list
-
-```sh
-sudo apt update
-```
-
-### Install NGINX
-
-```sh
-sudo apt install nginx -y
-```
-
-### Allow NGINX through the firewall (if using UFW)
-
-```sh
-sudo ufw allow 'Nginx Full'
-```
+Ensure NGINX is installed and running on your Ubuntu VM.
+If not installed, you can follow the instructions here: [NGINX Installation Guide](./ngix-service.md)
 
 ## Step 2: Configure the NGINX Reverse Proxy
 
@@ -215,15 +170,17 @@ sudo nano /etc/nginx/sites-available/minikube.conf
 
 ```nginx
 server {
-    listen 80;
-    server_name YOUR_UBUNTU_VM_IP;
+server {
+    listen 8001;
+    server_name 192.168.100.39;
 
     location / {
-        proxy_pass http://localhost:8001/; # Must end with a slash
+	proxy_pass http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/; # Must end with a slash
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
+}
 }
 ```
 
@@ -245,103 +202,4 @@ sudo systemctl restart nginx
 
 ## Step 3: Access the dashboard with NGINX
 
-Now, you can access the Kubernetes dashboard using a simpler URL from your Proxmox host or any machine on the same network: `http://YOUR_UBUNTU_VM_IP/dashboard`.
-
-Note: This setup proxies the insecure `kubectl proxy` service. For a production environment, you should configure NGINX to use HTTPS.
-
-## Optional: Setting up NGINX Proxy Manager
-
-For a more user-friendly and feature-rich experience, you can install NGINX Proxy Manager. It runs in Docker and provides a web interface for managing reverse proxy configurations and SSL certificates with Let's Encrypt.
-
-### Install Docker and Docker Compose (if not already installed)
-
-### Create a `docker-compose.yml` file to define the NGINX Proxy Manager container
-
-### Deploy the container
-
-### Access the web UI and create a new proxy host that forwards traffic to your Minikube dashboard service
-
-# Updating the NGINX Configuration for the Kubernetes Dashboard
-
-To access the Kubernetes dashboard through the NGINX reverse proxy, you need to update the NGINX configuration to point to the correct dashboard URL.
-
-## Step 1: Get the Correct Dashboard URL
-
-Run the following command on your Ubuntu VM to get the full path to the dashboard:
-
-```sh
-minikube dashboard --url
-```
-
-The output will be similar to this:
-
-```
-http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
-```
-
-## Step 2: Edit Your NGINX Configuration
-
-Open the NGINX configuration file for your Minikube proxy:
-
-```sh
-sudo nano /etc/nginx/sites-available/minikube.conf
-```
-
-Modify the `proxy_pass` directive inside the `location /dashboard` block. It must point to the full path you retrieved in the previous step:
-
-```nginx
-server {
-    listen 80;
-    server_name YOUR_UBUNTU_VM_IP;
-
-    location /dashboard {
-        proxy_pass http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-}
-```
-
-Crucial detail: The `proxy_pass` URL must end with a slash (`/`) to ensure NGINX correctly handles path and subpath forwarding.
-
-Save the file and exit (Ctrl + X, Y, Enter).
-
-## Step 3: Test and Restart NGINX
-
-Test the NGINX configuration for syntax errors:
-
-```sh
-sudo nginx -t
-```
-
-Reload or restart NGINX to apply the new configuration:
-
-```sh
-sudo systemctl restart nginx
-```
-
-## Step 4: Access the Dashboard
-
-Now, navigate to `http://YOUR_UBUNTU_VM_IP/dashboard` in your web browser. You should be greeted with the Kubernetes dashboard login page.
-
-## Troubleshooting
-
-- **Redirect loop**: If you encounter a redirect loop, it's possible the dashboard itself is redirecting to the root `/` path. This is a known issue for some versions. The most reliable fix is often to use the NGINX configuration that rewrites the path, as described in a previous response.
-- **Path rewriting (Alternative)**: For a cleaner URL, you can use the path rewriting configuration. This redirects `http://YOUR_UBUNTU_VM_IP/` directly to the dashboard, so you don't need `/dashboard` in the URL:
-
-```nginx
-server {
-    listen 80;
-    server_name YOUR_UBUNTU_VM_IP;
-
-    location / {
-        proxy_pass http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-}
-```
-
-With this configuration, simply visiting `http://YOUR_UBUNTU_VM_IP/` will take you to the dashboard.
+You can now access the Minikube dashboard using the IP address of your Ubuntu VM and the port 8001. For example, `http://<proxmox-vm-ip>:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/`.

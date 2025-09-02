@@ -1,6 +1,6 @@
 # Configuring Ubuntu VM to Access Minikube ClusterIP Services
 
-This guide provides the steps to configure your Ubuntu VM to access Minikube ClusterIP services through a persistent static route, and then use NGINX as an HTTPS reverse proxy.
+Expose Minikube ClusterIP Services on the Ubuntu to the host(proxmox) network.
 
 ### Step 1: Get Minikube Network Information
 
@@ -20,15 +20,19 @@ Add a temporary route and then use Netplan to make it permanent. This directs tr
 #### Add the Temporary Route
 
 ```sh
-sudo ip route add <CLUSTER_CIDR> via <MINIKUBE_IP>
+sudo ip route add $CLUSTER_CIDR via $MINIKUBE_IP
 ```
-
-Replace `<CLUSTER_CIDR>` and `<MINIKUBE_IP>` with the values from the previous step.
 
 #### Create a Netplan Configuration File
 
 1. Find your network interface name: Run `ip a` to identify your primary network interface (e.g., `ens33`).
-2. Create a Netplan configuration file at `/etc/netplan/99-minikube-route.yaml`.
+2. Create a Netplan configuration file at:
+
+```sh
+nano /etc/netplan/99-minikube-route.yaml
+```
+
+3. Add the following content to the file:
 
 ```yaml
 network:
@@ -40,7 +44,7 @@ network:
           via: <MINIKUBE_IP>
 ```
 
-Replace `<YOUR_INTERFACE_NAME>` with the actual interface name, and `<CLUSTER_CIDR>` and `<MINIKUBE_IP>` with the values from the previous step.
+**_Note_**: Replace `<YOUR_INTERFACE_NAME>` with the actual interface name, and `<CLUSTER_CIDR>` and `<MINIKUBE_IP>` with the values from the previous step.
 
 #### Apply the Netplan Configuration
 
@@ -48,4 +52,4 @@ Replace `<YOUR_INTERFACE_NAME>` with the actual interface name, and `<CLUSTER_CI
 sudo netplan apply
 ```
 
-This will make the static route persistent across reboots.
+### This will make the static route persistent across reboots.
