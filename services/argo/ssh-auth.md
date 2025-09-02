@@ -69,7 +69,7 @@ spec:
 2. Apply the patch to your deployment:
 
 ```bash
-kubectl patch deployment argocd-repo-server -n argocd --patch "$(cat repo-server-patch.yaml)"
+kubectl patch deployment argocd-repo-server -n argocd --patch "$(cat argo-secrets-patch.yaml)"
 ```
 
 3. Restart the deployment to ensure the new secret volume is mounted correctly:
