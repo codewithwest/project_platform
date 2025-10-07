@@ -24,10 +24,11 @@ This is a documentation for the project platform, this is all the steps required
 
 - [Proxmox](https://www.proxmox.com/en/proxmox-ve)
 - [Ubuntu](https://ubuntu.com/download)
-- [Nginx Service](./services/nginx.md)
+- [Nginx Service](./services/nginx-service.md)
 - [App Expose](./services/app-expose.md)
 - [Minikube](./services/minikube-setup.md)
 - [Helm Setup](./services/helm.md)
+- [Tools](./services/tools.md)
 
 ## Deployment reusables
 

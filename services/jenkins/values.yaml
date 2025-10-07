@@ -24,6 +24,7 @@ controller:
     - apache-httpcomponents-client-4-api:latest
     - credentials:latest    
     - branch-api:latest
+    - theme-manager:latest
   startupProbe:
     initialDelaySeconds: 120 # Wait 120 seconds before starting the checks
     periodSeconds: 30       # Check every 30 seconds thereafter

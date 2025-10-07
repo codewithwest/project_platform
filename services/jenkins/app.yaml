@@ -19,7 +19,7 @@ spec:
     # Source 2: Your private Git repository containing the values.yaml file
     - repoURL: 'https://github.com/codewithwest/project_platform.git'
       targetRevision: dev
-      path: services/jenkins # <--- Add the path to your values.yaml file
+      path: services/jenkins
       ref: values
   project: default
   syncPolicy:

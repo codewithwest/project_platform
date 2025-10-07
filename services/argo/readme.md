@@ -1,109 +1,169 @@
-# Argo CD GitOps Setup
+# Installing Argo CD with Helm
 
-This repository tracks the deployment of Argo CD within a Minikube cluster, following a GitOps approach. The official manifest is used for a reliable installation, and all steps are documented here for auditability.
+This guide covers the installation of Argo CD using Helm, a package manager for Kubernetes. The steps are similar for other Argo projects, such as Argo Workflows, but with different chart names.
 
-## Contents
+### Step 1: Update Your Local Helm Chart Repository Cache
 
-- `argo/official-install.yaml`: The official Argo CD installation manifest from the `stable` branch of the `argoproj/argo-cd` GitHub repository.
+After adding the new repository, update your local cache to ensure you have the latest chart information.
 
-## Prerequisites
-
-- A running Minikube cluster.
-- `kubectl` configured to connect to the cluster.
-- A dedicated Git repository for your configurations.
-- NGINX installed on the Ubuntu VM for external access.
-
-## Installation
-
-1.  **Create the `management` namespace** in your Kubernetes cluster.
-    ```sh
-    kubectl create namespace management
-    ```
-2.  **Clone this repository** to your local machine.
-    ```sh
-    git clone https://github.com/your-username/your-repo.git
-    cd your-repo
-    ```
-3.  **Apply the Argo CD manifest** to the cluster, ensuring the `ClusterRoleBinding` is correctly configured for the `management` namespace.
-    ```sh
-    # This command uses the manifest from your repo
-    kubectl apply -n management -f ./argo/official-install.yaml
-    ```
-4.  **Correct the ClusterRoleBinding** to reference the `management` namespace.
-    ```sh
-    kubectl edit clusterrolebinding argocd-server -n management
-    ```
-5.  **Verify the deployment**. Check that all pods in the `management` namespace are running.
-    ```sh
-    kubectl get pods -n management
-    ```
-
-## Accessing the Argo CD UI
-
-1.  **Retrieve the initial admin password**.
-    ```sh
-    kubectl -n management get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
-    ```
-2.  **Access the UI** via port forwarding from your Ubuntu VM.
-    ```sh
-    kubectl port-forward svc/argocd-server -n management 8080:443
-    ```
-3.  **Log in** to your web browser at `https://localhost:8080`. Use `admin` as the username and the retrieved password.
-
-## Exposing Argo CD to the Proxmox Host
-
-# **Generating a Self-Signed SSL Certificate and Configuring NGINX**
-
-## **Step 1: Generate a Self-Signed SSL Certificate**
-
-Run the following command to create a self-signed SSL certificate on your Ubuntu VM:
-
-```bash
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/private.key -out /etc/nginx/certificate.crt
+```sh
+helm repo update
 ```
 
-**Note:** Use this command with caution, as it generates a self-signed certificate that may not be trusted by all clients.
+### Step 2: Install Argo CD with Helm
 
-## **Step 2: Edit the NGINX Configuration File**
+You can now install the `argo-cd` chart. It is recommended to install it in its own namespace for better resource management.
 
-Edit the NGINX configuration file on the Ubuntu VM:
+#### Create a New Namespace for Argo CD
 
-```bash
-sudo nano /etc/nginx/sites-enabled/default
+```sh
+kubectl create namespace management
 ```
 
-## **Step 3: Update the Server Block**
+#### Install the Chart into the `argocd` Namespace
 
-Update the server block to reflect the new paths:
-
-```nginx
-server {
-    listen 8443 ssl;
-    server_name 192.168.100.35;
-
-    ssl_certificate /etc/nginx/certificate.crt;
-    ssl_certificate_key /etc/nginx/private.key;
-
-    location / {
-        proxy_pass https://<argo-external-ip>:443;
-        # Other headers
-    }
-}
+```sh
+helm install argocd argo/argo-cd --namespace management
 ```
 
-## **Step 4: Check the NGINX Configuration Syntax and Restart the Service**
+Note: This command installs with the default values. For a custom installation, you can generate a `values.yaml` file first, modify it, and then apply it.
 
-Check the NGINX configuration syntax and restart the service:
-
-```bash
-sudo nginx -t
-sudo systemctl restart nginx
+```sh
+helm show values argo/argo-cd > values.yaml
+# Edit values.yaml
+helm install argocd argo/argo-cd --namespace management --values values.yaml
 ```
 
-This will resolve the certificate loading error and allow NGINX to start correctly. You can then proceed with accessing Argo CD from your Proxmox host.
+### Step 4: Access the Argo CD UI
 
-**Troubleshooting Tips**
+After installation, you can get the initial password and use port-forwarding to access the web UI.
 
-- Make sure to replace `<argo-external-ip>` with the actual external IP address of your Argo CD instance.
-- Verify that the certificate and private key files are correctly located at `/etc/nginx/certificate.crt` and `/etc/nginx/private.key`, respectively.
-- If you encounter any issues with the NGINX configuration, check the error logs for more information.
+#### Retrieve the Initial Admin Password
+
+The default username is `admin`.
+
+```sh
+kubectl -n management get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode ; echo
+```
+
+#### Use Port-Forwarding to Access the UI
+
+This forwards a local port (e.g., 8080) to the Argo CD server running in your Minikube cluster.
+
+```sh
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Open your web browser and navigate to `http://localhost:8080`. Log in with the username `admin` and the password you retrieved in the previous step.
+
+### Step 5: Clean Up (Optional)
+
+If you need to remove Argo CD, use the `helm uninstall` command.
+
+```sh
+helm uninstall argocd --namespace argocd
+kubectl delete namespace argocd
+```
+
+### Step 6: Customization
+
+Create a file named values.yaml with the following content:
+
+```yaml
+# Add volumes and volume mounts for the argocd-repo-server
+repoServer:
+  extraVolumes:
+    - name: ssh-known-hosts
+      configMap:
+        name: argocd-ssh-known-hosts-cm
+    - name: repo-credentials
+      secret:
+        secretName: argocd-repo-key-secret
+  extraVolumeMounts:
+    - name: ssh-known-hosts
+      mountPath: /etc/ssh/ssh_known_hosts
+      subPath: ssh_known_hosts
+    - name: repo-credentials
+      mountPath: /home/argocd/.ssh
+
+# Add the extra Role and RoleBinding for the argocd-server
+# Note: The namespace `management` will be replaced by the Helm release namespace (`-n argocd`).
+server:
+  extraRoles:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        name: argocd-pod-reader
+      rules:
+        - apiGroups: [""]
+          resources: ["pods", "pods/log", "pods/exec"]
+          verbs: ["get", "list", "watch"]
+        - apiGroups: ["apps"]
+          resources: ["controllerrevisions"]
+          verbs: ["get", "list", "watch"]
+  extraRoleBindings:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: argocd-pod-reader-binding
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: Role
+        name: argocd-pod-reader
+      subjects:
+        - kind: ServiceAccount
+          name: argocd-server
+
+# Add the extra ClusterRole and ClusterRoleBinding for the argocd-application-controller
+applicationController:
+  extraClusterRoles:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      metadata:
+        name: argocd-pvc-viewer
+      rules:
+        - apiGroups: [""]
+          resources: ["persistentvolumeclaims"]
+          verbs: ["get", "list", "watch"]
+  extraClusterRoleBindings:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: argocd-pvc-viewer-binding
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: argocd-pvc-viewer
+      subjects:
+        - kind: ServiceAccount
+          name: argocd-application-controller
+```
+
+Key considerations
+Namespace handling: The Argo Helm chart automatically handles namespaces for namespace-scoped resources. If you install into the argocd namespace with the command helm install argocd argo/argo-cd -n argocd, the namespace: management you specified in the Role and RoleBinding will be automatically replaced with argocd. This is expected behavior and avoids hardcoding the namespace.
+Pre-existing resources: The argocd-ssh-known-hosts-cm configmap and argocd-repo-key-secret secret must exist in the target namespace before you run the helm install command.
+
+### The Helm chart will not create these resources for you, but it will use them for mounting.
+
+How to use the values.yaml file
+
+### After creating the your-custom-values.yaml file, run the helm install command from the directory where the file is saved:
+
+```sh
+helm install argocd argo/argo-cd -n management -f values.yaml
+```
+
+### Setup secrets
+
+```sh
+kubectl create secret generic repo-secret-codewithwest \
+    --from-literal=name=codewithwest \
+    --from-literal=url=git@github.com:codewithwest/project_platform.git \
+    --from-literal=type=git \
+    --from-file=sshPrivateKey=/home/west/.ssh/argocd-repo-key \
+    --dry-run=client -o yaml | kubectl label -f - --local='true' argocd.argoproj.io/secret-type=repository -o yaml | kubectl apply -f - -n management
+```
+
+You can now check in `Settings > Repositories` to see the new repository
+
+### Step 7: Creating a new
