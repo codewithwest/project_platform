@@ -51,7 +51,7 @@ kubectl -n management get secret argocd-initial-admin-secret -o jsonpath="{.data
 This forwards a local port (e.g., 8080) to the Argo CD server running in your Minikube cluster.
 
 ```sh
-kubectl port-forward svc/argocd-server -n argocd 8080:443
+  kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
 
 Open your web browser and navigate to `http://localhost:8080`. Log in with the username `admin` and the password you retrieved in the previous step.

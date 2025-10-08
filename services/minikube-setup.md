@@ -202,4 +202,5 @@ sudo systemctl restart nginx
 
 ## Step 3: Access the dashboard with NGINX
 
-You can now access the Minikube dashboard using the IP address of your Ubuntu VM and the port 8001. For example, `http://<proxmox-vm-ip>:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/`.
+You can now access the Minikube dashboard using the IP address of your Ubuntu VM and the port 8001. For example,
+`http://<proxmox-vm-ip>:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/`.
