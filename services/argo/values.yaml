@@ -10,11 +10,6 @@ argo-cd:
       - --insecure
     service:
       type: NodePort
-      nodePorts:
-        http: 3080
-        https: 8443
-
-  
     # ingress:
     #   enabled: true
     #   ingressClassName: "nginx"
