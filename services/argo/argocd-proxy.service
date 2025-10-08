@@ -1,0 +1,12 @@
+[Unit]
+Description=ArgoCD Kubectl Proxy
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/kubectl port-forward svc/argo-cd-argocd-server -n management 8080:80 --address=0.0.0.0
+User=west
+Environment=KUBECONFIG=/home/west/.kube/config
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
