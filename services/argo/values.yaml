@@ -9,7 +9,7 @@ argo-cd:
     extraArgs:
       - --insecure
     service:
-      type: NodePort
+      type: ClusterIP
     # ingress:
     #   enabled: true
     #   ingressClassName: "nginx"
