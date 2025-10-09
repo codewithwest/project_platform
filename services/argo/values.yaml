@@ -1,22 +1,20 @@
-argo-cd:
-  server:
-    extraArgs:
-      - --insecure
-    service:
-      type: NodePort
-      nodePort: 30080
-    # To enable ingress, uncomment the following lines and configure accordingly
-    # ingress:
-    #   enabled: true
-    #   ingressClassName: "nginx"
-    #   annotations:
-    #     "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
-    #     "nginx.ingress.kubernetes.io/ssl-passthrough": "true"
-    #     "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS"
-    #   tls:
-    #     - secretName: "argo-server-tls"
-    #       hosts:
-    #         - argo.westdynamics.local
-  # global:
-  #   domain: argo.westdynamics.local
-  
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-ingress
+  namespace: management
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  rules:
+  - host: argocd.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            port:
+              number: 443

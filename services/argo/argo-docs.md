@@ -92,7 +92,7 @@ server:
 ### Upgrade argo cd with new values file
 
 ```bash
-    helm upgrade argo-cd charts -n management
+    helm upgrade argo-cd charts -n management --values values.yaml
     # OR
     helm upgrade argo-cd charts/argo-cd -n management
 ```
