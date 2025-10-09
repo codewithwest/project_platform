@@ -1,15 +1,11 @@
 argo-cd:
-  dex:
-    enabled: false
-  notifications:
-    enabled: false
-  applicationSet:
-    enabled: false
   server:
     extraArgs:
       - --insecure
     service:
-      type: ClusterIP
+      type: NodePort
+      nodePort: 30080
+    # To enable ingress, uncomment the following lines and configure accordingly
     # ingress:
     #   enabled: true
     #   ingressClassName: "nginx"
