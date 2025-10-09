@@ -18,7 +18,7 @@ spec:
         backend:
           service:
             # The service name created by the Argo CD manifest
-            name: argocd-server
+            name: argo-cd-argocd-server
             port:
               # The service port for HTTP (usually 80 or 443)
               number: 80
