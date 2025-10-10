@@ -1,0 +1,25 @@
+# argo-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argo-ingress
+  namespace: management # Argo CD namespace
+  annotations:
+    # Set backend protocol to HTTP to talk to the Argo CD service on 8080
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP" 
+    # Use rewrite to strip /argo prefix before forwarding
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /argo
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            # The port on the Argo CD Service that directs to the 8080 pod port
+            # (If the Service is standard, this is likely 80 or 443, 
+            # but we target the Service port that points to the pod's 8080)
+            number: 80
