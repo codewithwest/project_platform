@@ -22,4 +22,5 @@ spec:
             # The port on the Argo CD Service that directs to the 8080 pod port
             # (If the Service is standard, this is likely 80 or 443, 
             # but we target the Service port that points to the pod's 8080)
-            number: 80
+            port:
+              number: 80
