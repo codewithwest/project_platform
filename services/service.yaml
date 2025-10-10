@@ -3,50 +3,46 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: platform-default-ingress
-  # You can define this Ingress in a generic namespace like 'default' or 'ingress-nginx'
-  # since it references services in other namespaces.
   namespace: default 
   annotations:
-    # Set the Ingress Controller (required for path-based routing)
-    kubernetes.io/ingress.class: "nginx" 
-    # Use annotation to define backend protocols for specific paths (required!)
+    # 1. FIX: Use 'spec.ingressClassName' instead of the deprecated annotation
+    # kubernetes.io/ingress.class: "nginx" 
+    
+    # Use annotation to define backend protocols for specific paths (required for HTTP/HTTPS mix)
     nginx.ingress.kubernetes.io/server-snippet: |
       # Rule for Argo CD
-      location /argo {
+      location /argo/ {
         # Argo CD is on HTTP internally (port 8080)
         proxy_pass http://argocd-server.management.svc.cluster.local:8080;
       }
       # Rule for Kubernetes Dashboard
-      location /dashboard {
+      location /dashboard/ {
         # Dashboard is on HTTPS internally (port 8443)
         proxy_pass https://kubernetes-dashboard.kubernetes-dashboard.svc.cluster.local:8443;
       }
     # Optional: Recommended to strip the path prefix before forwarding
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # Use the / prefix in rewrite target since the server-snippet is explicitly defined
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  # 2. FIX: Specify the Ingress Class here
+  ingressClassName: nginx # <-- Use the name of your Ingress Controller Class
   rules:
-  # Since you don't use hostnames, we leave the host field blank or omit it
   - http:
       paths:
-      # 1. Path for Argo CD
-      - path: /argo(/|$)(.*)
+      # 1. Path for Argo CD: Simplified path for Prefix pathType
+      - path: /argo
         pathType: Prefix
         backend:
           service:
-            # Note: We must point this to *a* valid service for the Ingress to be valid, 
-            # even though the server-snippet is doing the heavy lifting.
             name: argocd-server
             port:
-              # Pointing to the *Service's* declared port (likely 80 or 443 in the Service spec)
-              number: 80 
+              number: 80 # Must point to a valid service port
       
-      # 2. Path for Kubernetes Dashboard
-      - path: /dashboard(/|$)(.*)
+      # 2. Path for Kubernetes Dashboard: Simplified path for Prefix pathType
+      - path: /dashboard
         pathType: Prefix
         backend:
           service:
-            # Pointing to *a* valid service for the Ingress to be valid.
             name: kubernetes-dashboard
             port:
-              # Pointing to the *Service's* declared port (likely 80 or 443 in the Service spec)
-              number: 443
+              number: 443 # Must point to a valid service port
