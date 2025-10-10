@@ -32,7 +32,7 @@ package { 'docker.io':
 
 # Add User to Docker Group
 exec { 'add-user-to-docker-group':
-  command     => 'sudo usermod -aG docker $USER && newgrp docker',
+  command     => 'sudo groupadd docker && sudo usermod -aG docker $USER && newgrp docker',
   refreshonly => true,
 }
 

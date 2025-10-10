@@ -1,18 +1,20 @@
-
-apiVersion: metallb.io/v1beta1
-kind: IPAddressPool
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
 metadata:
-  name: default-pool
-  namespace: metallb-system
-spec:
-  addresses:
-    - 192.168.100.39-192.168.100.250
+  name: anonymous-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"] # Or specific resources like "namespaces", "nodes", etc.
+  verbs: ["get", "list"]
 ---
-apiVersion: metallb.io/v1beta1
-kind: L2Advertisement
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
 metadata:
-  name: default-l2
-  namespace: metallb-system
-spec: 
-  ipAddressPools:
-  - default-pool
+  name: anonymous-reader-binding
+subjects:
+- kind: User
+  name: system:anonymous
+roleRef:
+  kind: ClusterRole
+  name: anonymous-reader
+  apiGroup: rbac.authorization.k8s.io
