@@ -22,4 +22,4 @@ spec:
             name: kubernetes-dashboard
             # The Service port for the secure access, usually 443 or 8443
             port:
-              number: 443
+              number: 80
