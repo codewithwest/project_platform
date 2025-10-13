@@ -11,7 +11,6 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-passthrough: "true" # Or sometimes ssl-verify: "false"
 
-    # nginx.ingress.kubernetes.io/ssl-redirect: "false" 
 spec:
   ingressClassName: nginx
   rules:
@@ -22,6 +21,5 @@ spec:
         backend:
           service:
             name: kubernetes-dashboard
-            # The Service port for the secure access, usually 443 or 8443
             port:
-              number: 80
+              number: 443
