@@ -5,11 +5,9 @@ metadata:
   name: argo-ingress
   namespace: management # Argo CD namespace
   annotations:
-    # Set backend protocol to HTTP to talk to the Argo CD service on 8080
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTP" 
-    # Use rewrite to strip /argo prefix before forwarding
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false" 
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true" 
 spec:
   ingressClassName: nginx
   rules:
@@ -24,4 +22,4 @@ spec:
             # (If the Service is standard, this is likely 80 or 443, 
             # but we target the Service port that points to the pod's 8080)
             port:
-              number: 80
+              number: 443
