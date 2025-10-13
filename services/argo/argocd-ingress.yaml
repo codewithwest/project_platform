@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: argo-ingress
   namespace: management
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   ingressClassName: nginx
   rules:
