@@ -1,19 +1,18 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: v1
+kind: Service
 metadata:
-  name: argo-ingress
+  name: argocd-server-nodeport
   namespace: management
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
-  ingressClassName: nginx
-  rules:
-  - http:
-      paths:
-      - path: /argo
-        pathType: Prefix
-        backend:
-          service:
-            name: argocd-server
-            port:
-              number: 80
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 8080
+    nodePort: 30080
+    name: http
+  - port: 443
+    targetPort: 8080
+    nodePort: 30443
+    name: https
+  selector:
+    app.kubernetes.io/name: argocd-server
