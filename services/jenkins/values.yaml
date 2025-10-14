@@ -1,23 +1,17 @@
 # Source: https://charts.jenkins.io
 controller:
-  spec:
-  type: NodePort
-  ports:
-    - port: 80
-      targetPort: 8080
-      nodePort: 30081
-      name: http
-    - port: 443
-      targetPort: 8080
-      nodePort: 30444
-      name: https
-  selector:
-    app.kubernetes.io/name: jenkins
+  service:
+    type: NodePort
+    ports:
+      - port: 80
+        targetPort: 8080
+        nodePort: 30081
+        name: http
   image:
     tag: 'latest-jdk21'
   persistence:
     enabled: true
-    storageClass: "standard" # Use a storage class if available, otherwise Minikube's default will work
+    storageClass: "standard"
     size: 5Gi
   resources:
     requests:
@@ -26,7 +20,6 @@ controller:
     limits:
       cpu: "500m"
       memory: "1Gi"
-  # You can specify custom plugins here
   installPlugins:
     - kubernetes:latest
     - git:latest
@@ -38,18 +31,14 @@ controller:
     - branch-api:latest
     - theme-manager:latest
   startupProbe:
-    initialDelaySeconds: 120 # Wait 120 seconds before starting the checks
-    periodSeconds: 30       # Check every 30 seconds thereafter
-    failureThreshold: 10 
-  # controller:
-  # ... other controller settings ...
-  # Add the volumes block to define the hostPath volume
+    initialDelaySeconds: 120
+    periodSeconds: 30
+    failureThreshold: 10
   volumes:
     - name: docker-sock
       hostPath:
         path: /var/run/docker.sock
         type: Socket
-  # Add the volumeMounts block to mount the volume into the Jenkins container
   volumeMounts:
     - name: docker-sock
       mountPath: /var/run/docker.sock
