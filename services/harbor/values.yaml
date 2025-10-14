@@ -1,40 +1,25 @@
-# A minimal Harbor Helm chart values file for Minikube.
-# Use this as a starting point and add more configuration as needed.
+# Harbor Helm chart values for Minikube with NodePort
 
-# ====================================================================
 # Global Settings
-# ====================================================================
-# Use the nip.io DNS service for dynamic resolution to your Minikube IP.
-# This avoids manual /etc/hosts file editing.
-# Replace 192.168.49.2 with your actual Minikube IP.
-hostname: core.192.168.49.2.nip.io
-externalURL: https://core.192.168.49.2.nip.io
+hostname: harbor.local
+externalURL: http://harbor.local:30082
+harborAdminPassword: "admin123"
 
-# Set a temporary password for the admin user.
-# WARNING: This is insecure for production. Change immediately.
-harborAdminPassword: "MyHarborAdminPassword"
-
-# ====================================================================
-# Expose Harbor
-# ====================================================================
-# Expose Harbor using an Ingress for a clean URL and HTTPS.
+# Expose Harbor using NodePort
 expose:
-  type: ingress
-  ingress:
-    hosts:
-      core: core.192.168.49.2.nip.io
-    annotations:
-      # These annotations assume the standard NGINX Ingress controller.
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  type: nodePort
+  nodePort:
+    ports:
+      http:
+        port: 80
+        nodePort: 30082
+      https:
+        port: 443
+        nodePort: 30445
   tls:
-    # Use auto-generated self-signed certificates for testing.
-    certSource: auto
+    enabled: false
 
-# ====================================================================
 # Persistence Settings
-# ====================================================================
-# Configure persistence using a StorageClass.
 persistence:
   persistentVolumeClaim:
     registry:
@@ -50,11 +35,7 @@ persistence:
       accessMode: ReadWriteOnce
       size: 1Gi
 
-# ====================================================================
 # Resource Limits (for Minikube)
-# ====================================================================
-# Reduce the replica counts to 1 to minimize resource usage.
-# This is not for production HA setups.
 portal:
   replicas: 1
 core:
@@ -66,10 +47,7 @@ registry:
 chartmuseum:
   replicas: 1
 
-# ====================================================================
 # Internal Database and Redis
-# ====================================================================
-# Use the embedded PostgreSQL and Redis for simplicity.
 database:
   type: internal
 redis:
