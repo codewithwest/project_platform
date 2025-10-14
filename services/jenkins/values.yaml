@@ -1,6 +1,18 @@
 # Source: https://charts.jenkins.io
 controller:
-  serviceType: ClusterIP
+  spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30081
+      name: http
+    - port: 443
+      targetPort: 8080
+      nodePort: 30444
+      name: https
+  selector:
+    app.kubernetes.io/name: jenkins
   image:
     tag: 'latest-jdk21'
   persistence:

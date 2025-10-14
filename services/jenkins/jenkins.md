@@ -10,14 +10,34 @@ sudo nano /etc/nginx/sites-available/jenkins.conf
 
 ```sh
 server {
-    listen 8443 ssl;
-    server_name 192.168.100.39;
+    listen 8002 ssl;
+    server_name 192.168.100.40;  # Your VM's external IP
+
+    ssl_certificate /etc/nginx/ssl/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx-selfsigned.key;
 
     location / {
-	    proxy_pass http://10.110.241.215:443; # Must end with a slash
-        proxy_set_header Host $host;
+        proxy_pass https://192.168.49.2:30444;  # Minikube IP:NodePort
+        proxy_ssl_verify off;
+        proxy_set_header Host 192.168.49.2:30444;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # ArgoCD specific headers
+        proxy_set_header Accept-Encoding "";
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+
+        # WebSocket support for ArgoCD streaming
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        # Increase buffer sizes for large responses
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
     }
 }
 ```
@@ -27,6 +47,8 @@ n my case, I run Jenkins for Windows Desktop, and also suffered from this issue.
 ### Step 3: restart nginx
 
 ```sh
+sudo ln -s /etc/nginx/sites-available/jenkins.conf /etc/nginx/sites-enabled/
+sudo nginx -t
 sudo systemctl restart nginx
 ```
 

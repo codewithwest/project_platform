@@ -10,7 +10,7 @@
 
 ```bash
 # Start minikube
-minikube start
+minikube start --driver=docker
 
 # Set kubectl context
 kubectl config use-context minikube
@@ -73,8 +73,11 @@ Create `/etc/nginx/sites-available/argocd.conf`:
 
 ```nginx
 server {
-    listen 8002;
+    listen 8001 ssl;
     server_name 192.168.100.40;  # Your VM's external IP
+
+    ssl_certificate /etc/nginx/ssl/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx-selfsigned.key;
 
     location / {
         proxy_pass https://192.168.49.2:30443;  # Minikube IP:NodePort
@@ -128,7 +131,7 @@ curl https://192.168.49.2:30443 --insecure
 
 ```bash
 # Via nginx proxy
-https://192.168.100.40:8002
+https://192.168.100.40:8001
 ```
 
 ## 6. Get Initial Admin Password

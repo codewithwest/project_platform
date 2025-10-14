@@ -27,7 +27,13 @@ sudo systemctl start nginx
 sudo ufw allow 'Nginx Full
 ```
 
-## Step 3: Configure NGINX as a Reverse Proxy
+## Step 3: Create ssl certificates
+
+```bash
+    sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx-selfsigned.key -out /etc/nginx/ssl/nginx-selfsigned.crt
+```
+
+## Step 4: Configure NGINX as a Reverse Proxy
 
 Create a new NGINX server block configuration file to handle the proxying.
 
@@ -44,8 +50,8 @@ server {
     listen 8443 ssl;
     server_name 192.168.100.39;
 
-    ssl_certificate /etc/nginx/certificate.crt;
-    ssl_certificate_key /etc/nginx/private.key;
+    ssl_certificate /etc/nginx/ssl/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx-selfsigned.key;
 
     location / {
         proxy_pass https://<>service-ip:443/;
@@ -56,7 +62,7 @@ server {
 
 - Save and close the file.
 
-## Step 4: Enable the New Server Block
+## Step 5: Enable the New Server Block
 
 Enable your new configuration and remove the default one to prevent conflicts.
 
@@ -72,7 +78,7 @@ sudo rm /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/<conf-file-name> /etc/nginx/sites-enabled/
 ```
 
-## Step 5: Test and Restart NGINX
+## Step 6: Test and Restart NGINX
 
 Before restarting, test your configuration for any syntax errors.
 
@@ -81,7 +87,7 @@ sudo nginx -t;
 sudo systemctl restart nginx;
 ```
 
-## Step 6: Test the Reverse Proxy Locally
+## Step 7: Test the Reverse Proxy Locally
 
 Confirm that the reverse proxy is working correctly by making a request from within the Ubuntu VM.
 
