@@ -1,6 +1,7 @@
 # Source: https://charts.jenkins.io
 controller:
   serviceType: NodePort
+  servicePort: 8080
   nodePort: 30090
   image:
     tag: 'latest-jdk21'
