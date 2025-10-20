@@ -37,19 +37,18 @@ controller:
   volumeMounts:
     - name: docker-sock
       mountPath: /var/run/docker.sock
+      
+  # Sidecar customizations are defined under configAutoReload, not as a custom list.
   sidecars:
-    - name: config-reload
+    configAutoReload:
       env:
         - name: REQ_RETRY_CONNECT
-          value: "60" # Increase the number of retries
+          value: "60"
         - name: REQ_INITIAL_DELAY
-          value: "120" # Add a startup delay in seconds
-      # Mounts and other configuration from the default chart
-  # This is the correct location for JCasC configuration
+          value: "120"
+  
   JCasC:
     enabled: true
-    # The configScripts block will be rendered as a ConfigMap.
-    # The key (e.g., "jenkins-security") becomes the filename.
     configScripts:
       jenkins-security: |
         jenkins:
