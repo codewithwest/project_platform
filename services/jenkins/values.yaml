@@ -37,7 +37,14 @@ controller:
   volumeMounts:
     - name: docker-sock
       mountPath: /var/run/docker.sock
-
+  sidecars:
+    - name: config-reload
+      env:
+        - name: REQ_RETRY_CONNECT
+          value: "60" # Increase the number of retries
+        - name: REQ_INITIAL_DELAY
+          value: "120" # Add a startup delay in seconds
+      # Mounts and other configuration from the default chart
   # This is the correct location for JCasC configuration
   JCasC:
     enabled: true
