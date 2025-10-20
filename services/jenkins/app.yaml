@@ -11,7 +11,7 @@ spec:
   sources:
     # Source 1: The public Jenkins Helm chart repository
     - repoURL: 'https://charts.jenkins.io'
-      targetRevision: '5.8.101'
+      targetRevision: '5.8.102'
       chart: jenkins
       helm:
         valueFiles:

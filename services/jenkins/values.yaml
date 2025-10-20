@@ -20,7 +20,8 @@ controller:
     - kubernetes:latest
     - git:latest
     - blueocean:latest 
-    - docker-workflow:latest 
+    - docker-workflow:latest
+    - docker:latest
     - junit:latest
     - apache-httpcomponents-client-4-api:latest
     - credentials:latest    
