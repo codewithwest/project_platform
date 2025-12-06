@@ -11,35 +11,35 @@ sudo nano /etc/nginx/sites-available/jenkins.conf
 ```sh
 server {
     listen 8002 ssl;
-    server_name 192.168.100.40;  # Your VM's external IP
+    server_name 192.168.100.40;
 
     ssl_certificate /etc/nginx/ssl/nginx-selfsigned.crt;
     ssl_certificate_key /etc/nginx/ssl/nginx-selfsigned.key;
 
     location / {
-        proxy_pass https://192.168.49.2:30444;  # Minikube IP:NodePort
-        proxy_ssl_verify off;
-        proxy_set_header Host 192.168.49.2:30444;
+        proxy_pass http://192.168.49.2:30090;
+
+        # Correct forwarding headers
+        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
 
-        # ArgoCD specific headers
-        proxy_set_header Accept-Encoding "";
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_set_header X-Forwarded-Port $server_port;
+        # Always tell Jenkins we are HTTPS externally
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Port 8002;
 
-        # WebSocket support for ArgoCD streaming
+        # WebSocket support (agents, BlueOcean, console output)
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
 
-        # Increase buffer sizes for large responses
+        # Buffers
         proxy_buffer_size 128k;
         proxy_buffers 4 256k;
         proxy_busy_buffers_size 256k;
     }
 }
+
 ```
 
 n my case, I run Jenkins for Windows Desktop, and also suffered from this issue. I headed to "Manage Jenkins" -> "Configure System" and edited the "Jenkins Location" -> "Jenkins URL", and changed http://localhost:<port>/ to http://<hostName>:<port>/
@@ -109,4 +109,3 @@ pipeline {
     }
 }
 ```
-

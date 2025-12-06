@@ -2,6 +2,7 @@ controller:
   serviceType: NodePort
   servicePort: 8080
   nodePort: 30090
+  jenkinsUrl: "https://192.168.100.40:8002"
   image:
     tag: 'latest-jdk21'
   persistence:
