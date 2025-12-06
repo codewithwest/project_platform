@@ -1,8 +1,8 @@
 # Harbor Helm chart values for Minikube with NodePort
 
 # Global Settings
-hostname: harbor.local
-externalURL: http://harbor.local:30082
+hostname: harbor.west.home
+externalURL: http://harbor.west.home:30082
 harborAdminPassword: "admin123"
 
 # Expose Harbor using NodePort
@@ -18,6 +18,13 @@ expose:
         nodePort: 30445
   tls:
     enabled: false
+
+  auto:
+  commonName: "192.168.100.40"
+  altNames:
+    - "192.168.100.40"
+    - "harbor.local"
+    - "harbor.west.home"
 
 # Persistence Settings
 persistence:
