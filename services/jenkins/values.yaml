@@ -67,16 +67,13 @@ JCasC:
                 password: "${ADMIN_PASSWORD}"
 
 agent:
-enabled: true
-
-image:
-repository: docker
-tag: "28-cli"
-
-privileged: false
-
-volumes:
-- type: HostPath
-hostPath:
-path: /var/run/docker.sock
-mountPath: /var/run/docker.sock
+  enabled: true
+  image:
+    repository: docker
+    tag: "28-cli"
+  privileged: false
+  volumes:
+    - type: HostPath
+      hostPath:
+        path: /var/run/docker.sock
+      mountPath: /var/run/docker.sock
