@@ -3,59 +3,80 @@ controller:
   servicePort: 8080
   nodePort: 30090
   jenkinsUrl: "https://192.168.100.40:8002"
+
   image:
-    tag: 'latest-jdk21'
+    tag: latest-jdk21
+
   persistence:
     enabled: true
-    storageClass: "standard"
+    storageClass: standard
     size: 5Gi
+
   resources:
     requests:
-      cpu: "250m"
-      memory: "512Mi"
+      cpu: 250m
+      memory: 512Mi
     limits:
-      cpu: "500m"
-      memory: "1Gi"
+      cpu: 500m
+      memory: 1Gi
+
   installPlugins:
     - kubernetes:latest
     - git:latest
-    - blueocean:latest 
+    - blueocean:latest
     - docker-workflow:latest
     - junit:latest
     - apache-httpcomponents-client-4-api:latest
-    - credentials:latest    
+    - credentials:latest
     - branch-api:latest
     - theme-manager:latest
+
   startupProbe:
     initialDelaySeconds: 120
     periodSeconds: 30
     failureThreshold: 10
+
   volumes:
     - name: docker-sock
       hostPath:
         path: /var/run/docker.sock
         type: Socket
+
   volumeMounts:
     - name: docker-sock
       mountPath: /var/run/docker.sock
-      
-  # Sidecar customizations are defined under configAutoReload, not as a custom list.
-  sidecars:
-    configAutoReload:
-      env:
-        - name: REQ_RETRY_CONNECT
-          value: "60"
-        - name: REQ_INITIAL_DELAY
-          value: "120"
-  
-  JCasC:
-    enabled: true
-    configScripts:
-      jenkins-security: |
-        jenkins:
-          securityRealm:
-            local:
-              allowsSignup: false
-              users:
-                - id: "admin"
-                  password: "${ADMIN_PASSWORD}"
+
+sidecars:
+  configAutoReload:
+    env:
+      - name: REQ_RETRY_CONNECT
+        value: "60"
+      - name: REQ_INITIAL_DELAY
+        value: "120"
+
+JCasC:
+  enabled: true
+  configScripts:
+    jenkins-security: |
+      jenkins:
+        securityRealm:
+          local:
+            allowsSignup: false
+            users:
+              - id: "admin"
+                password: "${ADMIN_PASSWORD}"
+
+agent:
+enabled: true
+
+image:
+repository: docker
+tag: "28-cli"
+
+privileged: false
+
+volumes:
+- type: HostPath
+hostPath:
+path: /var/run/docker.sock
+mountPath: /var/run/docker.sock
