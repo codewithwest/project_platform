@@ -1,6 +1,9 @@
 # Jenkins + Minikube Kubernetes Cloud (Insecure HTTPS) – Minimal Setup
 
 ## 1. Jenkins Kubernetes Cloud
+
+- Get password kubectl get secret --namespace=management jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode
+- Login with username=admin and password=retrieved password
 - Install **Kubernetes Plugin** via **Manage Jenkins → Manage Plugins**
 - Configure cloud:
   - Name: `minikube-cloud`
@@ -13,6 +16,7 @@
 ---
 
 ## 2. Pod Template (docker-builder)
+
 - Name: `docker-builder`
 - Label: `docker-builder`
 - Container Name: `minikube-tools`
@@ -27,19 +31,20 @@ metadata:
     jenkins: agent
 spec:
   containers:
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-    tty: true
-    command: [ "jenkins-agent" ]
-    env:
-      - name: JENKINS_AGENT_INSECURE
-        value: "true"
-      - name: JENKINS_URL
-        value: "https://192.168.100.40:8002/"
-    resources:
-      requests:
-        cpu: "100m"
-        memory: "256Mi"
-      limits:
-        cpu: "500m"
-        memory: "512Mi"
+    - name: jnlp
+      image: jenkins/inbound-agent:latest
+      tty: true
+      command: ["jenkins-agent"]
+      env:
+        - name: JENKINS_AGENT_INSECURE
+          value: "true"
+        - name: JENKINS_URL
+          value: "https://192.168.100.40:8002/"
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "256Mi"
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+```
