@@ -3,7 +3,7 @@ controller:
   servicePort: 8080
   nodePort: 30090
   numExecutors: 0
-  # jenkinsUrl: "https://192.168.100.40:8002"
+  jenkinsUrl: "https://192.168.100.40:8002"
 
   image:
     tag: latest-jdk21
@@ -69,6 +69,14 @@ JCasC:
         authorizationStrategy:
           loggedInUsersCanDoAnything:
             allowAnonymousRead: false
+    reverse-proxy: |
+      jenkins:
+        systemMessage: "Running behind NGINX reverse proxy"
+        remotingSecurity:
+          enabled: true
+        crumbIssuer:
+          standard:
+            excludeClientIPFromCrumb: true
 agent:
   enabled: true
   image:
