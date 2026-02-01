@@ -1,0 +1,43 @@
+
+# Docker file
+FROM  jenkins/jenkins:lts-jdk17
+# execute following commands as root
+USER root
+# Install required packages for Docker integration
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    lsb-release \
+    python3-pip \
+    curl \
+    ca-certificates \
+    apt-transport-https
+# Add Docker repository GPG key
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+# Configure Docker repository for Debian-based systems
+RUN echo "deb [arch=$(dpkg --print-architecture) \
+    signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
+    https://download.docker.com/linux/debian \
+    $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+
+# Update package lists and install Docker client
+RUN apt-get update && apt-get install -y --no-install-recommends docker-ce-cli
+
+# Switch back to Jenkins user
+USER jenkins
+
+# Install Blue Ocean and Docker Workflow plugins
+RUN jenkins-plugin-cli  \
+    --plugins blueocean:1.27.16 docker-workflow:580.vc0c340686b_54 \
+    junit:1307.vdd5b_2646279e apache-httpcomponents-client-4-api:4.5.14-208.v438351942757 \
+    credentials:1384.vf0a_2ed06f9c6    branch-api:2.1193.v64a_61471c489
+
+# Network configuration (optional, customize if needed)
+# networks:
+#   - jenkins_network
+
+# Networks (optional, uncomment to create a custom network)
+# networks:
+#   jenkins_network:
+#     external: true
+
+

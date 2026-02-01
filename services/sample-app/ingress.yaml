@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: node-hello-ingress
+spec:
+  rules:
+  - host: node-hello.westdynamics.nets # A DNS name for your service
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: node-hello-service
+            port:
+              number: 8001

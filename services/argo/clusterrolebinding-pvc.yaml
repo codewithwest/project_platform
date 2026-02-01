@@ -1,0 +1,14 @@
+# bind this ClusterRole to the argocd-application-controller Service Account
+# clusterrolebinding-pvc.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argocd-pvc-viewer-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argocd-pvc-viewer
+subjects:
+- kind: ServiceAccount
+  name: argocd-application-controller
+  namespace: management # Use your namespace here

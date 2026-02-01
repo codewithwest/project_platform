@@ -1,0 +1,83 @@
+pipeline {
+  agent {
+        docker {
+            image 'ubuntu:latest'
+            args "-v ${params.VolumeMountPath}"
+        }
+    }
+    parameters {
+        string(name: 'VolumeMountPath', defaultValue: '/shared/documents/github/jenkins-build-history/codewithwest-admin:/output/', description: 'Volume mount path')
+    }
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage("Create a deb file") {
+            steps {
+                sh '''
+                echo "Make a dist directory"
+                mkdir -pv dists/1.2.1/
+                echo "this is a sample deb-file" > "dists/1.2.1/codewithwest_admin-1.2.11.deb"
+                echo "list created files or directory"
+                ls -la dists/1.2.1/
+                echo "File creation successful!"
+                '''
+            }
+
+        }
+        stage("Rename file"){
+            steps {
+                def build_number = env.BUILD_NUMBER
+                sh '''
+          echo "Get debian file name" 
+          file_name="$(find dists/ -type f -name "*.deb" -print -quit)"
+          build_number=$BUILD_NUMBER
+
+          echo "File name: $file_name"
+          echo "Build Number: $build_number"
+          echo "Adding build number to the file name..."
+
+          # Extract the base filename and extension
+          base_name=$(basename "$file_name")
+          extension="${base_name##*.}"
+          filename_without_extension="${base_name%.*}"
+
+          # Construct the new filename
+          new_file_name="${filename_without_extension}${build_number}.${extension}"
+
+          # Build the new full path
+          directory=$(dirname "$file_name")
+          new_full_path="${directory}/${new_file_name}"
+
+          # Rename the file
+          mv "$file_name" "$new_full_path"
+
+          echo "Renamed file to: $new_full_path"
+               '''
+            }
+        }
+
+       stage('Copy Archive') {
+         steps {
+          script {
+            // Use the current build's workspace to copy artifacts
+            def buildNumber = env.BUILD_NUMBER
+            echo "Using current build number: ${buildNumber}"
+
+            // Ensure the output directory exists
+            sh 'mkdir -vp /output/'
+
+            // Copy the .deb file from the current workspace to the output directory
+            sh 'cp -vr dists/**/*.deb /output/'
+        }
+        }
+    }
+    }
+    post {
+        always {
+            sh 'rm -vrf dist/'
+        }
+    }
+}

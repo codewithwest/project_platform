@@ -1,0 +1,26 @@
+services:
+  jenkins:
+    container_name: jenkins
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    # environment:
+      # NODE_ENV: development
+    ports:
+    - "8080:8080"
+    - "50000:50000"
+    restart: unless-stopped
+    volumes:
+    - "/home/west/jenkins_data/jenkins_home:/var/jenkins_home"
+    hostname: 'jenkins_main'
+
+# Network configuration (optional, customize if needed)
+# networks:
+#   - jenkins_network
+
+# Networks (optional, uncomment to create a custom network)
+# networks:
+#   jenkins_network:
+#     external: true

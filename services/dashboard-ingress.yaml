@@ -1,0 +1,25 @@
+# dashboard-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-ingress
+  namespace: kubernetes-dashboard # Dashboard namespace
+  annotations:
+    # Set backend protocol to HTTPS to talk to the Dashboard service on 8443
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    # Use rewrite to strip /dashboard prefix before forwarding
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true" # Or sometimes ssl-verify: "false"
+
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /dashboard
+        pathType: Prefix
+        backend:
+          service:
+            name: kubernetes-dashboard
+            port:
+              number: 8443

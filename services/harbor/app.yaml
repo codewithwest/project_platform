@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: harbor
+  namespace: management
+spec:
+  destination:
+    name: ''
+    namespace: management
+    server: 'https://kubernetes.default.svc'
+  sources:
+    # Source 1: The public Harbor Helm chart repository
+    - repoURL: 'https://helm.goharbor.io'
+      targetRevision: '1.14.0'
+      chart: harbor
+      helm:
+        valueFiles:
+          # Correct path: Relative to the root of the 'values' source
+          - $values/services/harbor/values.yaml
+    # Source 2: Your private Git repository containing the values file
+    # The 'path' field is removed from this source to avoid conflict
+    - repoURL: 'https://github.com/codewithwest/project_platform.git'
+      targetRevision: dev
+      ref: values
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

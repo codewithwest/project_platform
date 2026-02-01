@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velocity Knight Trainer - Password Reset</title>
+    <style>
+        /* Basic Reset & Body Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            width: 100% !important;
+            background-color: #1a1a1a;
+            /* Dark background similar to Firebase console */
+            color: #e0e0e0;
+            /* Light gray text for contrast */
+            line-height: 1.6;
+        }
+
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        td {
+            padding: 0;
+        }
+
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            /* Standard link blue */
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #007bff;
+            /* Laser blue for the button */
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            text-decoration: none;
+            mso-padding-alt: 0px;
+            /* Outlook specific */
+        }
+
+        .button span {
+            mso-text-raise: 6px;
+            /* Outlook specific */
+        }
+
+        /* Responsive Styles */
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+                padding: 0 15px !important;
+            }
+
+            .header-logo img {
+                max-width: 180px !important;
+            }
+        }
+    </style>
+</head>
+
+<body
+    style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; width: 100% !important; background-color: #1a1a1a; color: #e0e0e0; line-height: 1.6;">
+
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
+        style="background-color: #1a1a1a;">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+                <table class="container" width="600" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                    style="width: 600px; max-width: 100%; background-color: #2a2a2e; border-radius: 8px; overflow: hidden;">
+                    <!-- Header with Logo -->
+                    <tr>
+                        <td align="center" style="padding: 10px 20px 10px 20px; background-color: #2a2a2e;">
+                            <a href="https://velocity-knight-trainer.vercel.app/" target="_blank" style="text-decoration: none;">
+                            <img class="header-logo" src="https://raw.githubusercontent.com/codewithwest/codewithwest/main/public/vkt-logo.svg" alt="VKT Logo" />
+
+                            <span style="display: block; border: 0; max-width: 200px; height: auto; outline: none; font-size: 16px;">
+                                Velocity Knight Trainer
+                            </span>
+
+                            </a>
+                            <span style="color: #868686; font-size: 12px; margin-top: 5px;">by</span>
+                            <p style="color: #616161; font-size: 12px; margin-top: 5px; text-align: center;">WestDynamics</p>
+                        </td>
+                    </tr>
+                    <!-- Content Area -->
+                    <tr>
+                        <td style="padding: 20px 40px 40px 40px; color: #e0e0e0;">
+                            <h2
+                                style="font-size: 24px; color: #a09696; margin-top: 0; margin-bottom: 20px; text-align: center;">
+                                Password Reset Request</h2>
+
+                            <p style="margin-bottom: 15px;">Hello, %DISPLAY_NAME%</p>
+
+                            <p style="margin-bottom: 25px;">We received a request to reset your password for your
+                                Velocity Knight Trainer account.</p>
+
+                            <!-- Button -->
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <!-- Button Table for Outlook compatibility -->
+                                <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
+                                    <tr>
+                                        <td align="center" style="border-radius: 4px; background-color: #007bff;"
+                                            bgcolor="#007bff">
+                                            <a href='%LINK%' target="_blank"
+                                                style="font-size: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; color: #ffffff; text-decoration: none; border-radius: 4px; padding: 12px 25px; border: 1px solid #007bff; display: inline-block;">
+                                                <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:6pt">&nbsp;</i><![endif]-->
+                                                <span style="mso-text-raise: 6px;">Reset Password</span>
+                                                <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <p style="margin-bottom: 15px; font-size: 14px; color: #b0b0b0;">This link is valid for . If you did not request a password reset, you can safely ignore this
+                                email.</p>
+
+                            <p style="margin-bottom: 15px; font-size: 14px; color: #b0b0b0;">For security purposes, if
+                                you did not initiate this request, we recommend you log in and change your password
+                                immediately.</p>
+
+                            <p style="margin-bottom: 25px;">
+                                If you have any questions or need further assistance, please contact us at
+                                <a href="mailto:westdynamics.tech@gmail.com" style="color: #007bff;">
+                                    westdynamics.tech@gmail.com
+                                </a>.
+                            </p>
+
+                            <p style="font-size: 14px; color: #b0b0b0; margin-bottom: 0;">Thanks,</p>
+                            <p style="font-size: 14px; color: #b0b0b0; margin-bottom: 0;">The WestDynamics Team</p>
+                            <p style="font-size: 14px; color: #b0b0b0;">Velocity Knight Trainer</p>
+                        </td>
+                    </tr>
+                    <!-- Footer (Optional) -->
+                    <tr>
+                        <td align="center"
+                            style="padding: 20px 40px; font-size: 12px; color: #616161; background-color: #2a2a2e; border-top: 1px solid #3a3a3e;">
+                            <p style="margin: 0;">&copy; 2025 WestDynamics. All rights reserved.</p>
+                            <p style="margin: 5px 0 0 0;"><a href="[Privacy Policy Link]"
+                                    style="color: #616161; text-decoration: underline;">Privacy Policy</a> | <a
+                                    href="[Terms of Service Link]"
+                                    style="color: #616161; text-decoration: underline;">Terms of Service</a></p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>
