@@ -1,59 +1,47 @@
-pipeline {
-    agent {
-        docker 'docker-agent'
-    }
-    // Environment variables for the pipeline
-    environment {
-        GITHUB_USER = "codewithwest"
-        IMAGE_NAME = "project_platform"
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        ARGO_APP_NAME = "jenkins"
-        GHCR_IMAGE = "ghcr.io/${GITHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-        // The URL of the repository you need to checkout with PAT
-        PRIVATE_REPO_URL = "https://github.com/codewithwest/project_nextjs-template"
-        // The ID of the credential you created in Jenkins
-        GITHUB_PAT_CREDENTIALS_ID = "github-secret"
+podTemplate(
+  label: 'docker-agent',
+  containers: [
+    containerTemplate(
+      name: 'docker',
+      image: 'docker:28-cli',
+      command: 'cat',
+      ttyEnabled: true
+    )
+  ],
+  volumes: [
+    hostPathVolume(
+      hostPath: '/var/run/docker.sock',
+      mountPath: '/var/run/docker.sock'
+    )
+  ]
+) {
+  node('docker-agent') {
+
+    stage('Check Docker Access') {
+      container('docker') {
+        sh 'docker version'
+      }
     }
 
-    stages {
-        stage('Checkout Private Repo') {
-            steps {
-                echo "Checking out private repository: ${PRIVATE_REPO_URL}"
-                script {
-                    git(
-                        url: PRIVATE_REPO_URL,
-                        credentialsId: GITHUB_PAT_CREDENTIALS_ID,
-                        branch: 'main'
-                    )
-                }
-            }
-        }
-        
-        stage('Build Docker Image') {
-            steps {
-                echo 'Building Docker image...'
-                script {
-                    docker.build(GHCR_IMAGE, "--pull")
-                }
-            }
-        }
-        
-        stage('Push to GitHub Container Registry') {
-            steps {
-                echo "Pushing image to GHCR: ${GHCR_IMAGE}"
-                script {
-                    docker.withRegistry("https://ghcr.io", 'github-pat') {
-                        docker.image(GHCR_IMAGE).push()
-                    }
-                }
-            }
-        }
+    stage('Clone repo via checkout scm') {
+        container('docker') {
+            sh '''
+                git clone https://github.com/codewithwest/project_platform.git
+                cd project_platform
+                git checkout dev
 
-        stage('Deploy with Argo CD') {
-            steps {
-                echo 'Triggering Argo CD sync...'
-                sh "argocd app sync ${ARGO_APP_NAME}"
-            }
+                ls -la
+            '''
         }
     }
+
+    stage('Build Docker Image') {
+      container('docker') {
+        sh '''
+          cd project_platform
+          docker build -f Dockerfile.jenkins -t jenkins:latest .
+        '''
+      }
+    }
+  }
 }
