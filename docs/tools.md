@@ -19,6 +19,11 @@ install the .deb file
 ```sh
 sudo apt install ./k9s_linux_amd64.deb
 ```
+## Kubectl
+
+```sh
+sudo snap install kubectl
+```
 
 ## Kubectx
 
@@ -27,7 +32,7 @@ sudo apt install ./k9s_linux_amd64.deb
 - kubens is a tool to switch between Kubernetes namespaces (and configure them for kubectl) easily.
 
 ```sh
-sudo apt install kubectx --classic
+sudo apt install kubectx
 ```
 
 ## kubescape
