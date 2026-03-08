@@ -1,6 +1,14 @@
 # Installing Argo CD with Helm
 
+Back to [Readme](../../README.md)
+
 This guide covers the installation of Argo CD using Helm, a package manager for Kubernetes. The steps are similar for other Argo projects, such as Argo Workflows, but with different chart names.
+
+### Add repository
+
+```sh
+helm repo add argo https://argoproj.github.io/argo-helm
+```
 
 ### Step 1: Update Your Local Helm Chart Repository Cache
 
