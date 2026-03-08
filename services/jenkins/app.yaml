@@ -13,7 +13,7 @@ spec:
   sources:
     # Jenkins Helm chart
     - repoURL: https://charts.jenkins.io
-      targetRevision: 5.8.110
+      targetRevision: 5.9.3
       chart: jenkins
       helm:
         valueFiles:
@@ -21,7 +21,7 @@ spec:
 
     # Repo containing values.yaml
     - repoURL: https://github.com/codewithwest/project_platform.git
-      targetRevision: dev
+      targetRevision: main
       ref: values
 
   syncPolicy:
