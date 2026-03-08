@@ -18,13 +18,11 @@ expose:
         nodePort: 30445
   tls:
     enabled: true
-
-  auto:
-  commonName: "192.168.100.40"
-  altNames:
-    - "192.168.100.40"
-    - "harbor.local"
-    - "harbor.west.home"
+    commonName: "192.168.100.46"
+    altNames:
+      - "192.168.100.46"
+      - "harbor.local"
+      - "harbor.west.home"
 
 # Persistence Settings
 persistence:
