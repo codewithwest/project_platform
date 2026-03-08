@@ -47,4 +47,32 @@ microk8s kubectl get nodes
 free -h
 ```
 
-### If you have less than 1GB free, we need to be very aggressive with resource limits in the next steps.
+## 6. 🛠️ The "Permanent SSL Fix"
+
+### Since you are on Ubuntu, follow these steps to regenerate a compliant CA:
+
+#### 1. Create a workspace and generate the new CA
+
+We need to add keyUsage specifically.
+
+```bash
+mkdir ~/microk8s-ssl-fix && cd ~/microk8s-ssl-fix
+
+# Generate a new private key for the CA
+openssl genrsa -out ca.key 2048
+
+# Generate the new CA certificate with the missing extensions
+openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 -out ca.crt \
+  -subj "/CN=MicroK8s-Root-CA" \
+  -addext "keyUsage=critical,digitalSignature,keyCertSign"
+```
+
+#### 2. Inject the new CA into MicroK8s
+
+MicroK8s has a built-in command to refresh its certificates using a custom CA directory.
+
+```bash
+sudo microk8s refresh-certs --cert ca.crt
+```
+
+**Note**: This will restart the kubelite service. Your cluster will be briefly unreachable.

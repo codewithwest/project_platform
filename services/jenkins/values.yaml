@@ -57,6 +57,8 @@ sidecars:
         value: "60"
       - name: REQ_INITIAL_DELAY
         value: "120"
+      - name: SKIP_TLS_VERIFY
+        value: "true"
 
 JCasC:
   enabled: true
