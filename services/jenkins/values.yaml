@@ -59,6 +59,8 @@ sidecars:
         value: "120"
       - name: SKIP_TLS_VERIFY
         value: "true"
+      - name: VERIFY_TLS
+        value: "false"
 
 JCasC:
   enabled: true
