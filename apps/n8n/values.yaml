@@ -13,3 +13,9 @@ n8n:  # <--- Everything must be nested under this key
         user: n8n
         existingSecret: "postgres-credentials"
         existingSecretPasswordKey: "password"
+  spec:
+    source:
+      path: apps/n8n/charts  # Path to folder with Chart.yaml
+      helm:
+        valueFiles:
+          - "../values.yaml" # Your indented values.yaml
