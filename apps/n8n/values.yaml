@@ -6,6 +6,7 @@ service:
 
 spec:
   source:
+    repoURL: https://github.com/codewithwest/project_platform.git
     path: apps/n8n/charts  # Full path from repo root
     helm:
       valueFiles:
