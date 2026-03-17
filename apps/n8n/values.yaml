@@ -10,4 +10,4 @@ config:
 secret:
   database:
     postgres:
-      password: "big secret"
+      password: "postgres-credentials"
