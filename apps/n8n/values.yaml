@@ -1,21 +1,22 @@
+service:
+  type: NodePort
+  port: 5678          # The internal service port
+  targetPort: 5678    # The port n8n container is listening on
+  nodePort: 30082
+
 spec:
   source:
     path: .  # Full path from repo root
     helm:
       valueFiles:
         - "../values.yaml" # Look one level up from the 'charts' folder
-
-service:
-  type: NodePort
-  port: 5678          # The internal service port
-  targetPort: 5678    # The port n8n container is listening on
-  nodePort: 30082  
+  
 
 config:
   database:
     type: postgresdb
     postgres:
-      host: "192.168.100.46"
+      host: "postgres-postgresql.storage.svc.cluster.local"
       port: 5432
       database: n8n
       user: n8n
