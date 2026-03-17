@@ -1,9 +1,10 @@
 spec:
   source:
-    path: ./charts
+    path: charts  # Full path from repo root
     helm:
       valueFiles:
-        - "values.yaml"
+        - "../values.yaml" # Look one level up from the 'charts' folder
+
 service:
   type: NodePort
   port: 5678          # The internal service port
