@@ -1,6 +1,6 @@
 spec:
   source:
-    path: charts  # Full path from repo root
+    path: .  # Full path from repo root
     helm:
       valueFiles:
         - "../values.yaml" # Look one level up from the 'charts' folder
