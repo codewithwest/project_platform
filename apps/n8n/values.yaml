@@ -6,7 +6,7 @@ service:
 
 spec:
   source:
-    path: .  # Full path from repo root
+    path: apps/n8n/charts  # Full path from repo root
     helm:
       valueFiles:
         - "../values.yaml" # Look one level up from the 'charts' folder
