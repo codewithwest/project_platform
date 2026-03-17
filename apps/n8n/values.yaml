@@ -1,27 +1,15 @@
-service:
-  type: NodePort
-  port: 5678          # The internal service port
-  targetPort: 5678    # The port n8n container is listening on
-  nodePort: 30082
-
-spec:
-  source:
-    repoURL: https://github.com/codewithwest/project_platform.git
-    path: apps/n8n/charts  # Full path from repo root
-    helm:
-      valueFiles:
-        - "../values.yaml" # Look one level up from the 'charts' folder
-  
-
-config:
-  database:
-    type: postgresdb
-    postgres:
-      host: "postgres-postgresql.storage.svc.cluster.local"
-      port: 5432
-      database: n8n
-      user: n8n
-      # The chart usually looks for a specific 'existingSecret' key
-      existingSecret: "postgres-credentials"
-      existingSecretPasswordKey: "password" 
- 
+n8n:  # <--- Everything must be nested under this key
+  service:
+    type: NodePort
+    port: 5678
+    nodePort: 30082
+  config:
+    database:
+      type: postgresdb
+      postgres:
+        host: "postgres-postgresql.storage.svc.cluster.local"
+        port: 5432
+        database: n8n
+        user: n8n
+        existingSecret: "postgres-credentials"
+        existingSecretPasswordKey: "password"
