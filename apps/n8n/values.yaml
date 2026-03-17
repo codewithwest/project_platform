@@ -1,22 +1,17 @@
-expose:
-  type: nodePort
-  nodePort:
-    ports:
-      http:
-        port: 5678
-        nodePort: 30082
-
 config:
   database:
     type: postgresdb
     postgres:
-      # Use the External IP or DNS from the Database Cluster
-      host: "192.168.100.46" 
+      host: "192.168.100.46"
       port: 5432
       database: n8n
       user: n8n
+      # The chart usually looks for a specific 'existingSecret' key
+      existingSecret: "postgres-credentials"
+      existingSecretPasswordKey: "password" 
 
-secret:
-  database:
-    postgres:
-      password: "postgres-credentials"
+service:
+  type: NodePort
+  port: 5678          # The internal service port
+  targetPort: 5678    # The port n8n container is listening on
+  nodePort: 30082   
