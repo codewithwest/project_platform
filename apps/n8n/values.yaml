@@ -1,9 +1,9 @@
 spec:
   source:
-    path: charts
+    path: ./charts
     helm:
       valueFiles:
-        - "../values.yaml"
+        - "values.yaml"
 service:
   type: NodePort
   port: 5678          # The internal service port
