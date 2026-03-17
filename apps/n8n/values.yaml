@@ -1,0 +1,13 @@
+config:
+  database:
+    type: postgresdb
+    postgres:
+      # Use the External IP or DNS from the Database Cluster
+      host: "192.168.100.46" 
+      port: 5432
+      database: n8n
+      user: n8n
+secret:
+  database:
+    postgres:
+      password: "big secret"
