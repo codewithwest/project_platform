@@ -1,3 +1,11 @@
+expose:
+  type: nodePort
+  nodePort:
+    ports:
+      http:
+        port: 5678
+        nodePort: 30082
+
 config:
   database:
     type: postgresdb
@@ -7,6 +15,7 @@ config:
       port: 5432
       database: n8n
       user: n8n
+
 secret:
   database:
     postgres:
