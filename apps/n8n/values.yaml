@@ -15,7 +15,7 @@ n8n:  # <--- Everything must be nested under this key
         existingSecretPasswordKey: "password"
   spec:
     source:
-      path: apps/n8n/charts  # Path to folder with Chart.yaml
+      path: .  # Path to folder with Chart.yaml
       helm:
         valueFiles:
           - "../values.yaml" # Your indented values.yaml
