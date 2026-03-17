@@ -1,6 +1,6 @@
 spec:
   source:
-    path: .
+    path: charts
     helm:
       valueFiles:
         - "../values.yaml"
