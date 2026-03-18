@@ -9,3 +9,9 @@ kubectl create secret generic postgres-credentials \
   --from-literal=password="[PASSWORD]" \
   --dry-run=client -o yaml > unsealed-secret.yaml
 ```
+
+kubeseal \
+ --controller-name=sealed-secrets \
+ --controller-namespace=management \
+ -f postgres-secret.yaml \
+ -o yaml > postgres-sealedsecret.yaml
