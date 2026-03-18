@@ -1,8 +1,13 @@
-n8n:  # <--- Everything must be nested under this key
+# Location: app/n8n/values.yaml
+
+n8n:
+  # 1. Network Access
   service:
     type: NodePort
     port: 5678
     nodePort: 30082
+
+  # 2. Database Connection
   config:
     database:
       type: postgresdb
@@ -11,11 +16,13 @@ n8n:  # <--- Everything must be nested under this key
         port: 5432
         database: n8n
         user: n8n
+        # These keys tell the chart to pull credentials from your Secret
         existingSecret: "postgres-credentials"
         existingSecretPasswordKey: "password"
-  spec:
-    source:
-      path: .  # Path to folder with Chart.yaml
-      helm:
-        valueFiles:
-          - "../values.yaml" # Your indented values.yaml
+
+  # 3. Persistence (Highly Recommended for n8n)
+  # This ensures your workflows and binary data are saved
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: "" # Leave empty for default or specify your own
