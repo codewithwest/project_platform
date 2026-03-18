@@ -22,7 +22,11 @@ n8n:
           key: password
 
     # 🔐 REQUIRED (people forget this and regret it later)
-    N8N_ENCRYPTION_KEY: "super-secret-key"
+    N8N_ENCRYPTION_KEY: 
+      valueFrom:
+        secretKeyRef:
+          name: postgres-credentials
+          key: password
 
     # 🌐 Webhook/URL config
     N8N_HOST: localhost
