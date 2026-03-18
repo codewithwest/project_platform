@@ -1,28 +1,30 @@
-# Location: app/n8n/values.yaml
-
 n8n:
-  # 1. Network Access
   service:
     type: NodePort
     port: 5678
     nodePort: 30082
 
-  # 2. Database Connection
-  config:
-    database:
-      type: postgresdb
-      postgres:
-        host: "postgres-postgresql.storage.svc.cluster.local"
-        port: 5432
-        database: n8n
-        user: n8n
-        # These keys tell the chart to pull credentials from your Secret
-        existingSecret: "postgres-credentials"
-        existingSecretPasswordKey: "password"
-
-  # 3. Persistence (Highly Recommended for n8n)
-  # This ensures your workflows and binary data are saved
   persistence:
     enabled: true
     size: 10Gi
-    storageClass: "" # Leave empty for default or specify your own
+
+  # Use env instead of config.database (more reliable)
+  extraEnv:
+    DB_TYPE: postgresdb
+    DB_POSTGRESDB_HOST: postgres-postgresql.storage.svc.cluster.local
+    DB_POSTGRESDB_PORT: "5432"
+    DB_POSTGRESDB_DATABASE: n8n
+    DB_POSTGRESDB_USER: n8n
+    DB_POSTGRESDB_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: postgres-credentials
+          key: password
+
+    # 🔐 REQUIRED (people forget this and regret it later)
+    N8N_ENCRYPTION_KEY: "super-secret-key"
+
+    # 🌐 Webhook/URL config
+    N8N_HOST: localhost
+    N8N_PORT: "5678"
+    WEBHOOK_URL: http://192.168.100.46:30082/
