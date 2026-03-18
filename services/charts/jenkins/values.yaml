@@ -1,97 +1,99 @@
-controller:
-  serviceType: NodePort
-  servicePort: 8080
-  nodePort: 30090
-  numExecutors: 0
-  jenkinsUrl: "https://192.168.100.46:30090"
+jenkins:
+  controller:
+    serviceType: NodePort
+    servicePort: 8080
+    nodePort: 30090
+    numExecutors: 0
+    jenkinsUrl: "http://192.168.100.46:30090"
 
-  agentListenerEnabled: true
-  agentListenerPort: 50000
+    agentListenerEnabled: true
+    agentListenerPort: 50000
 
-  image:
-    tag: latest-jdk21
+    image:
+      tag: latest-jdk21
 
-  persistence:
+    persistence:
+      enabled: true
+      storageClass: standard
+      size: 5Gi
+
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+    installPlugins:
+      - kubernetes:latest
+      - git:latest
+      - blueocean:latest
+      - docker-workflow:latest
+      - junit:latest
+      - apache-httpcomponents-client-4-api:latest
+      - credentials:latest
+      - branch-api:latest
+      - theme-manager:latest
+
+    startupProbe:
+      initialDelaySeconds: 120
+      periodSeconds: 30
+      failureThreshold: 10
+
+    volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+          type: Socket
+
+    volumeMounts:
+      - name: docker-sock
+        mountPath: /var/run/docker.sock
+
+  sidecars:
+    configAutoReload:
+      env:
+        - name: REQ_RETRY_CONNECT
+          value: "60"
+        - name: REQ_INITIAL_DELAY
+          value: "120"
+        - name: SKIP_TLS_VERIFY
+          value: "true"
+        - name: VERIFY_TLS
+          value: "false"
+
+  JCasC:
     enabled: true
-    storageClass: standard
-    size: 5Gi
+    configScripts:
+      security: |
+        jenkins:
+          securityRealm:
+            local:
+              allowsSignup: false
+              users:
+                - id: "admin"
+                  password: "${ADMIN_PASSWORD}"
+          authorizationStrategy:
+            loggedInUsersCanDoAnything:
+              allowAnonymousRead: false
+      reverse-proxy: |
+        jenkins:
+          systemMessage: "Running behind NGINX reverse proxy"
+          remotingSecurity:
+            enabled: true
+          crumbIssuer:
+            standard:
+              excludeClientIPFromCrumb: true
 
-  resources:
-    requests:
-      cpu: 512Mi
-      memory: 512Mi
-    limits:
-      cpu: 500m
-      memory: 1Gi
-
-  installPlugins:
-    - kubernetes:latest
-    - git:latest
-    - blueocean:latest
-    - docker-workflow:latest
-    - junit:latest
-    - apache-httpcomponents-client-4-api:latest
-    - credentials:latest
-    - branch-api:latest
-    - theme-manager:latest
-
-  startupProbe:
-    initialDelaySeconds: 120
-    periodSeconds: 30
-    failureThreshold: 10
-
-  volumes:
-    - name: docker-sock
-      hostPath:
-        path: /var/run/docker.sock
-        type: Socket
-
-  volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock
-
-sidecars:
-  configAutoReload:
-    env:
-      - name: REQ_RETRY_CONNECT
-        value: "60"
-      - name: REQ_INITIAL_DELAY
-        value: "120"
-      - name: SKIP_TLS_VERIFY
-        value: "true"
-      - name: VERIFY_TLS
-        value: "false"
-
-JCasC:
-  enabled: true
-  configScripts:
-    security: |
-      jenkins:
-        securityRealm:
-          local:
-            allowsSignup: false
-            users:
-              - id: "admin"
-                password: "${ADMIN_PASSWORD}"
-        authorizationStrategy:
-          loggedInUsersCanDoAnything:
-            allowAnonymousRead: false
-    reverse-proxy: |
-      jenkins:
-        systemMessage: "Running behind NGINX reverse proxy"
-        remotingSecurity:
-          enabled: true
-        crumbIssuer:
-          standard:
-            excludeClientIPFromCrumb: true
-agent:
-  enabled: true
-  image:
-    repository: docker
-    tag: "28-cli"
-  privileged: false
-  volumes:
-    - type: HostPath
-      hostPath:
-        path: /var/run/docker.sock
-      mountPath: /var/run/docker.sock
+  agent:
+    enabled: true
+    image:
+      repository: docker
+      tag: "28-cli"
+    privileged: false
+    volumes:
+      - type: HostPath
+        hostPath:
+          path: /var/run/docker.sock
+        mountPath: /var/run/docker.sock
