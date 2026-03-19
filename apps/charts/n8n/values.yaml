@@ -1,7 +1,9 @@
 service:
   type: NodePort
   port: 5678
-  nodePort: 30082
+  # Many charts expect it under 'nodePorts' (plural) and mapped to the protocol/name
+  nodePorts:
+    http: 30082
 
 main:
   mode: queue
@@ -14,7 +16,20 @@ main:
     storageClass: "fast-ssd"
     annotations:
       helm.sh/resource-policy: keep
-
+  extraContainers:
+    - name: task-runner
+      image: n8nio/runners:latest
+      ports:
+        - containerPort: 5681
+      env:
+        # 🚀 Because it's a sidecar, it shares the pod's network namespace!
+        - name: N8N_RUNNERS_TASK_BROKER_URI
+          value: "http://localhost:5679"
+        - name: N8N_RUNNERS_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: n8n-secret
+              key: DB_POSTGRESDB_PASSWORD
 # -------------------
 # CORE CONFIG
 # -------------------
@@ -95,19 +110,19 @@ worker:
 # -------------------
 # RUNNERS (THIS IS THE KEY PART)
 # -------------------
-taskRunners:
-  enabled: true
+# taskRunners:
+#   enabled: true
 
-  image:
-    repository: n8nio/runners
-    tag: latest
+#   image:
+#     repository: n8nio/runners
+#     tag: latest
 
-  env:
-    N8N_RUNNERS_TASK_BROKER_URI: http://n8n:5679
+#   env:
+#     N8N_RUNNERS_TASK_BROKER_URI: http://n8n:5679
 
-    # reuse SAME secret
-    N8N_RUNNERS_AUTH_TOKEN:
-      valueFrom:
-        secretKeyRef:
-          name: n8n-secret
-          key: DB_POSTGRESDB_PASSWORD
+#     # reuse SAME secret
+#     N8N_RUNNERS_AUTH_TOKEN:
+#       valueFrom:
+#         secretKeyRef:
+#           name: n8n-secret
+#           key: DB_POSTGRESDB_PASSWORD
