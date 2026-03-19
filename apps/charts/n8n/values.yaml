@@ -3,10 +3,17 @@ service:
   port: 5678
   nodePort: 30082
 
-persistence:
-  enabled: true
-  size: 10Gi
-  storageClass: standard
+main:
+  mode: queue
+  persistence:
+    enabled: true
+    volumeName: "n8n-main-data"
+    mountPath: "/home/node/.n8n"
+    size: 8Gi
+    accessMode: ReadWriteOnce
+    storageClass: "fast-ssd"
+    annotations:
+      helm.sh/resource-policy: keep
 
 # -------------------
 # CORE CONFIG
@@ -64,8 +71,7 @@ redis:
 # -------------------
 # ARCHITECTURE
 # -------------------
-main:
-  mode: queue
+
 
 webhook:
   enabled: true
@@ -79,7 +85,13 @@ worker:
 
   waitMainNodeReady:
     enabled: true
-
+  persistence:
+    enabled: true
+    volumeName: "n8n-worker-data"
+    mountPath: "/home/node/.n8n"
+    size: 5Gi
+    accessMode: ReadWriteMany  # For autoscaling
+    storageClass: "fast-ssd"
 # -------------------
 # RUNNERS (THIS IS THE KEY PART)
 # -------------------
