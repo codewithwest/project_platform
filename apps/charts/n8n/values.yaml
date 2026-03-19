@@ -1,79 +1,13 @@
-n8n:
-  # 1. Main Node Configuration
-  image:
-    repository: n8nio/n8n
-    tag: latest  # Ensuring you get the latest version
+service:
+  type: NodePort
 
-  # The community chart uses 'extraEnv' for all configurations
-  extraEnv:
-    - name: DB_TYPE
-      value: "postgresdb"
-    - name: DB_POSTGRESDB_HOST
-      value: "postgres-postgresql.storage.svc.cluster.local"
-    - name: DB_POSTGRESDB_PORT
-      value: "5432"
-    - name: DB_POSTGRESDB_DATABASE
-      value: "n8n"
-    - name: DB_POSTGRESDB_USER
-      value: "n8n"
-    - name: DB_POSTGRESDB_PASSWORD
-      valueFrom:
-        secretKeyRef: { name: n8n-secret, key: DB_POSTGRESDB_PASSWORD }
-    - name: N8N_ENCRYPTION_KEY
-      valueFrom:
-        secretKeyRef: { name: n8n-secret, key: N8N_ENCRYPTION_KEY }
-    - name: EXECUTIONS_MODE
-      value: "queue"
-    - name: QUEUE_BULL_REDIS_HOST
-      value: "n8n-redis-master"
-    - name: N8N_RUNNERS_ENABLED
-      value: "true"
-    - name: N8N_RUNNERS_MODE
-      value: "external"
-    - name: N8N_RUNNERS_AUTH_TOKEN
-      valueFrom:
-        secretKeyRef: { name: n8n-secret, key: DB_POSTGRESDB_PASSWORD }
+image:
+  tag: 2.11.4
 
-  service:
-    type: NodePort
-    port: 5678
-    nodePort: 30007
+persistence:
+  enabled: true
+  size: 10Gi
 
-  persistence:
-    enabled: true
-    size: 8Gi
-    storageClass: "fast-ssd"
-    accessMode: ReadWriteOnce
-
-  # Runner as a Sidecar on the Main Pod
-  extraContainers:
-    - name: task-runner
-      image: n8nio/runners:latest
-      env:
-        - name: N8N_RUNNERS_TASK_BROKER_URI
-          value: "http://localhost:5679"
-        - name: N8N_RUNNERS_AUTH_TOKEN
-          valueFrom:
-            secretKeyRef: { name: n8n-secret, key: DB_POSTGRESDB_PASSWORD }
-
-  # 2. Manual Worker Deployment (The Community Chart Way)
-  # This section creates the extra "Runner" pods you want.
-  extraDeployments:
-    - name: worker
-      replicaCount: 2
-      spec:
-        template:
-          spec:
-            containers:
-              - name: n8n-worker
-                image: n8nio/n8n:latest
-                args: ["worker"] # This tells n8n to start as a worker
-                envFrom:
-                  - configMapRef:
-                      name: n8n-config # You may need to export your envs to a ConfigMap
-                # Plus the Runner Sidecar for the workers
-              - name: task-runner
-                image: n8nio/runners:latest
-                env:
-                  - name: N8N_RUNNERS_TASK_BROKER_URI
-                    value: "http://localhost:5679"
+extraEnv:
+  - name: EXECUTIONS_MODE
+    value: queue
