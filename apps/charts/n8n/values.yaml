@@ -65,8 +65,6 @@ n8n:
     type: NodePort
     # -- This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
     port: 5678
-    # -- This sets the node port more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-    nodePort: 30001
     # -- Default Service name
     name: http
     # -- Additional service annotations
