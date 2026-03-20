@@ -119,6 +119,7 @@ n8n:
         helm.sh/resource-policy: keep
       labels: {}
 
+  existingEncryptionKeySecret: n8n-secret
   webhook:
     mode: queue
     url: ""
@@ -198,5 +199,4 @@ n8n:
     database: n8n
     # ❗ leave password empty OR remove it
     # password: ""
-    existingSecret: n8n-secret
-    existingSecretPasswordKey: DB_POSTGRESDB_PASSWORD
+    existingSecret: postgress-password
