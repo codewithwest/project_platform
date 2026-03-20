@@ -4,4 +4,4 @@ version: 1.0.0
 dependencies:
   - name: n8n
     version: 1.16.31
-    repository: "https://community-charts.github.io/helm-charts"
+    repository: https://community-charts.github.io/helm-charts
