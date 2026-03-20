@@ -99,7 +99,7 @@ n8n:
 
   worker:
     # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
-    mode: regular
+    mode: queue
     concurrency: 10
     count: 2
     allNodes: false
@@ -120,7 +120,7 @@ n8n:
       labels: {}
 
   webhook:
-    mode: regular
+    mode: queue
     url: ""
     count: 2
     allNodes: false
