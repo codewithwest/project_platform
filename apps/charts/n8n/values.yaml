@@ -15,11 +15,6 @@ n8n:
     annotations: {}
     labels: {}
 
-    file:
-      location: "logs/n8n.log"
-      maxsize: 16
-      maxcount: "100"
-
   nodes:
     builtin:
       enabled: false
