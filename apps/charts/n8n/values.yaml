@@ -1,23 +1,12 @@
 n8n:
-  # Default values for n8n.
-  # This is a YAML-formatted file.
-  # Declare variables to be passed into your templates.
-
-  # -- This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
   image:
     repository: n8nio/n8n
-    # -- This sets the pull policy for images.
     pullPolicy: IfNotPresent
-    # -- Overrides the image tag whose default is the chart appVersion.
     tag: ""
-
-  # -- This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   imagePullSecrets: []
-  # -- This is to override the chart name.
   nameOverride: ""
   fullnameOverride: ""
 
-  # -- This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
   service:
     enabled: true
     type: NodePort
@@ -27,356 +16,147 @@ n8n:
     labels: {}
 
     file:
-      # -- Location of the log files inside `~/.n8n`. Only for `file` log output.
       location: "logs/n8n.log"
-      # -- The maximum size (in MB) for each log file. By default, n8n uses 16 MB.
       maxsize: 16
-      # -- Max number of log files to keep, or max number of days to keep logs for. Once the limit is reached, the oldest log files will be rotated out. If using days, append a `d` suffix. Only for `file` log output.
       maxcount: "100"
 
-  # -- Node configurations for built-in and external npm packages
   nodes:
-    # -- Enable built-in node functions (e.g., HTTP Request, Code Node, etc.)
     builtin:
-      # -- Enable built-in modules for the Code node
       enabled: false
-      # -- List of built-in Node.js modules to allow in the Code node (e.g., crypto, fs). Use '*' to allow all.
       modules: []
-        # - crypto
-        # - fs
-    # -- External npm packages to install and allow in the Code node
     external:
-      # -- Allow all external npm packages
       allowAll: false
-      # -- Whether to reinstall missing packages. For more information, see https://docs.n8n.io/integrations/community-nodes/troubleshooting/#error-missing-packages
       reinstallMissingPackages: false
-      # -- List of npm package names and versions (e.g., "package-name@1.0.0")
       packages: []
-        # - "moment@2.29.4"
-        # - "lodash@4.17.21"
-    # -- Image for the init container to install npm packages
     initContainer:
-      # -- Image for the init container to install npm packages
       image:
-        # -- Repository for the init container to install npm packages
         repository: node
-        # -- Tag for the init container to install npm packages
         tag: "24-alpine"
-        # -- Pull policy for the init container to install npm packages
         pullPolicy: IfNotPresent
-      # -- Resources for the init container
-      resources: {}
-        # requests:
-        #   cpu: 100m
-        #   memory: 128Mi
-        # limits:
-        #   cpu: 500m
-        #   memory: 256Mi
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi
 
-  # -- Configuration for private npm registry
-  npmRegistry:
-    # -- Enable private npm registry
-    enabled: false
-    # -- URL of the private npm registry (e.g., https://registry.npmjs.org/)
-    url: ""
-    # -- Name of the Kubernetes secret containing npm registry credentials
-    secretName: ""
-    # -- Key in the secret for the .npmrc content or auth token
-    secretKey: "npmrc"
-    # -- Custom .npmrc content (optional, overrides secret if provided)
-    customNpmrc: ""
-
-  # -- n8n database configurations
   db:
-    # -- Prefix to use for table names.
     tablePrefix: ""
-    # -- Type of database to use. Valid values 'sqlite' | 'postgresdb'
-    type: sqlite
+    type: postgresdb
 
     logging:
-      # -- Whether database logging is enabled.
       enabled: false
-      # -- Database logging level. Requires `maxQueryExecutionTime` to be higher than `0`. Valid values 'query' | 'error' | 'schema' | 'warn' | 'info' | 'log' | 'all'
       options: error
-      # -- Only queries that exceed this time (ms) will be logged. Set `0` to disable.
       maxQueryExecutionTime: 0
 
-    sqlite:
-      # -- SQLite database file name
-      database: "database.sqlite"
-      # -- SQLite database pool size. Set to `0` to disable pooling.
-      poolSize: 0
-      # -- Runs VACUUM operation on startup to rebuild the database. Reduces file size and optimizes indexes. This is a long running blocking operation and increases start-up time.
-      vacuum: false
+    # postgresdb:
+    #   poolSize: 2
+    #   connectionTimeout: 20000
+    #   idleConnectionTimeout: 30000
+    #   schema: public
+    #   ssl:
+    #     enabled: false
+    #     base64EncodedCertificateAuthorityFile: ""
+    #     base64EncodedCertFile: ""
+    #     base64EncodedPrivateKeyFile: ""
+    #     existingCertificateAuthorityFileSecret:
+    #       name: ""
+    #       # -- The key of the certificate authority file in the existing secret.
+    #       key: "ca.crt"
+    #     # -- The PostgreSQL existing certificate file secret.
+    #     existingCertFileSecret:
+    #       # -- The name of the existing secret.
+    #       name: ""
+    #       # -- The key of the certificate file in the existing secret.
+    #       key: "cert.crt"
+    #     # -- The PostgreSQL existing SSL private key file secret.
+    #     existingPrivateKeyFileSecret:
+    #       # -- The name of the existing secret.
+    #       name: ""
+    #       # -- The key of the SSL private key file in the existing secret.
+    #       key: "cert.key"
+    #     # -- If n8n should reject unauthorized SSL connections (true) or not (false).
+    #     rejectUnauthorized: true
 
-    postgresdb:
-      # -- Control how many parallel open Postgres connections n8n should have. Increasing it may help with resource utilization, but too many connections may degrade performance.
-      poolSize: 2
-      # -- Postgres connection timeout (ms).
-      connectionTimeout: 20000
-      # -- Amount of time before an idle connection is eligible for eviction for being idle.
-      idleConnectionTimeout: 30000
-      # -- The PostgreSQL schema.
-      schema: public
-      # -- The PostgreSQL connection SSL settings. Find more information from here: https://docs.n8n.io/hosting/configuration/supported-databases-settings/#postgresdb
-      ssl:
-        # -- Whether to enable SSL.
-        enabled: false
-        # -- The PostgreSQL base64 encoded version of SSL certificate authority file content.
-        base64EncodedCertificateAuthorityFile: ""
-        # -- The PostgreSQL base64 encoded version of SSL certificate file content.
-        base64EncodedCertFile: ""
-        # -- The PostgreSQL base64 encoded version of SSL private key file content.
-        base64EncodedPrivateKeyFile: ""
-        # -- The PostgreSQL existing certificate authority file secret.
-        existingCertificateAuthorityFileSecret:
-          # -- The name of the existing secret.
-          name: ""
-          # -- The key of the certificate authority file in the existing secret.
-          key: "ca.crt"
-        # -- The PostgreSQL existing certificate file secret.
-        existingCertFileSecret:
-          # -- The name of the existing secret.
-          name: ""
-          # -- The key of the certificate file in the existing secret.
-          key: "cert.crt"
-        # -- The PostgreSQL existing SSL private key file secret.
-        existingPrivateKeyFileSecret:
-          # -- The name of the existing secret.
-          name: ""
-          # -- The key of the SSL private key file in the existing secret.
-          key: "cert.key"
-        # -- If n8n should reject unauthorized SSL connections (true) or not (false).
-        rejectUnauthorized: true
-
-  sentry:
-    # -- Whether sentry is enabled.
-    enabled: false
-    # -- Sentry DSN for backend.
-    backendDsn: ""
-    # -- Sentry DSN for frontend.
-    frontendDsn: ""
-    # -- Sentry DSN for external task runners.
-    externalTaskRunnersDsn: ""
-
-  versionNotifications:
-    # -- Whether to request notifications about new n8n versions
-    enabled: true
-    # -- Endpoint to retrieve n8n version information from
-    endpoint: "https://api.n8n.io/api/versions/"
-    # -- URL for versions panel to page instructing user on how to update n8n instance
-    infoUrl: "https://docs.n8n.io/hosting/installation/updating/"
-
-  api:
-    # -- Whether to enable the Public API
-    enabled: true
-    # -- Path segment for the Public API
-    path: api
-    # -- Whether to enable the Swagger UI for the Public API
-    swagger:
-      enabled: true
-
-  # -- Main node configurations
   main:
-    # -- Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes.
     count: 1
-
-    # -- Editor based URL. If it's not defined and ingress definition exists, ingress host will be used.
     editorBaseUrl: ""
-
-    # -- This block is for setting up the resource management for the main pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # limits:
-    #   cpu: 2000m
-    #   memory: 1Gi
-
-    # -- This is to setup the liveness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-    livenessProbe:
-      httpGet:
-        path: /healthz
-        port: http
-
-    # -- This is to setup the readiness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-    readinessProbe:
-      httpGet:
-        path: /healthz/readiness
-        port: http
-
-    # -- Force to use statefulset for the main pod. If true, the main pod will be created as a statefulset.
     forceToUseStatefulset: false
 
-    # -- Persistence configuration for the main pod
     persistence:
-      # -- Whether to enable persistence
       enabled: true
-      # -- Name of the volume to use for persistence
       volumeName: "n8n-main-pv"
-      # -- Existing claim to use for persistence
       existingClaim: ""
-      # -- Mount path for persistence
       mountPath: "/home/node/.n8n"
-      # -- Sub path for persistence
       subPath: ""
-      # -- Storage class for persistence
       storageClass: ""
-      # -- Access mode for persistence
       accessMode: ReadWriteOnce
-      # -- Size for persistence
       size: 8Gi
-      # -- Annotations for persistence
       annotations:
         helm.sh/resource-policy: keep
-      # -- Labels for persistence
       labels: {}
 
-
-  # -- Worker node configurations
   worker:
     # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
     mode: regular
-
-    # -- number of concurrency for each worker
     concurrency: 10
-
-    # -- Static number of workers. If allNodes or autoscaling is enabled, this value will be ignored.
     count: 2
-
-    # -- If true, all k8s nodes will deploy exatly one worker pod
     allNodes: false
-
-    # -- If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
     autoscaling:
-      # -- Whether autoscaling is enabled.
       enabled: false
-
-      # -- The minimum number of replicas.
       minReplicas: 1
-
-      # -- The maximum number of replicas.
       maxReplicas: 2
 
-    # -- This is to setup the wait for the main node to be ready.
-    waitMainNodeReady:
-      # -- Whether to enable the wait for the main node to be ready.
-      enabled: false
-      # -- The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http.
-      overwriteSchema: ""
-      # -- The URL to use for request to the main node. On default, it will use service name and port.
-      overwriteUrl: ""
-      # -- The health check path to use for request to the main node.
-      healthCheckPath: "/healthz"
-
-    # -- Persistence configuration for the worker pod
     persistence:
-      # -- Whether to enable persistence
       enabled: true
-      # -- Name of the volume to use for persistence
       volumeName: "n8n-worker-pv"
-      # -- Existing claim to use for persistence
       existingClaim: ""
-      # -- Mount path for persistence
       mountPath: "/home/node/.n8n"
-      # -- Sub path for persistence
-      subPath: ""
-      # -- Storage class for persistence
-      storageClass: ""
-      # -- Access mode for persistence
       accessMode: ReadWriteOnce
-      # -- Size for persistence
       size: 8Gi
-      # -- Annotations for persistence
       annotations:
         helm.sh/resource-policy: keep
-      # -- Labels for persistence
       labels: {}
 
   webhook:
-    # -- Use `regular` to use main node as webhook node, or use `queue` to have webhook nodes
     mode: regular
-
-    # -- Webhook url together with http or https schema
     url: ""
-
-    # -- Static number of webhooks. If allNodes or autoscaling is enabled, this value will be ignored.
     count: 2
-
-    # -- If true, all k8s nodes will deploy exatly one webhook pod
     allNodes: false
-
     autoscaling:
-      # -- Whether autoscaling is enabled.
       enabled: false
-
-      # -- The minimum number of replicas.
       minReplicas: 1
-
-      # -- The maximum number of replicas.
       maxReplicas: 2
 
   taskRunners:
-    # -- Use `internal` to use internal task runner, or use `external` to have external sidecar task runner. For more information please follow the documentation: https://docs.n8n.io/hosting/configuration/task-runners/#task-runner-modes
-    mode: internal
-    # -- The timeout for the task in seconds
+    mode: external
     taskTimeout: 60
-    # -- The heartbeat interval for the task in seconds
     taskHeartbeatInterval: 30
-    # -- The maximum concurrency for the task
     maxConcurrency: 5
-
-    # -- The address for the broker of the external task runner
     broker:
-      # -- The address for the broker of the external task runner
       address: "127.0.0.1"
-      # -- The port for the broker of the external task runner
       port: 5679
-
-    # -- The configuration for the external task runner
     external:
-      # -- The auth token for the main node
       mainNodeAuthToken: ""
-      # -- The auth token for the worker node
       workerNodeAuthToken: ""
-      # -- The auto shutdown timeout for the external task runner in seconds
       autoShutdownTimeout: 15
-      # -- The port for the external task runner
       port: 5680
-      # -- The node options for the external task runner
       nodeOptions:
         - "--max-semi-space-size=16"
         - "--max-old-space-size=300"
-
-      # -- The resources for the external task runner
       resources:
-        # -- The resources requests for the external task runner
         requests:
-          # -- The CPU request for the external task runner
           cpu: 100m
-          # -- The memory request for the external task runner
           memory: 32Mi
-        # -- The limits for the external task runner
         limits:
-          # -- The CPU limit for the external task runner
           cpu: 500m
-          # -- The memory limit for the external task runner
           memory: 512Mi
 
-  # -- For instance, the Schedule node uses it to know at what time the workflow should start. Find you timezone from here: https://momentjs.com/timezone/
   timezone: "Africa/Johannesburg"
-
-  # -- A locale identifier, compatible with the Accept-Language header. n8n doesn't support regional identifiers, such as de-AT.
   defaultLocale: en
-
-  # -- graceful shutdown timeout in seconds
   gracefulShutdownTimeout: 30
 
-  # -- This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
   ingress:
     enabled: false
     className: ""
@@ -393,26 +173,19 @@ n8n:
     #    hosts:
     #      - n8n.local
 
-  # -- Bitnami Redis configuration
   redis:
-    # -- Enable redis
     enabled: true
-    # -- Enable redis architecture.
     architecture: standalone
 
     image:
-      # -- This is temporary workaround because of bitnami's deprecation until to completely replace it with our solution.
       repository: bitnamilegacy/redis
 
-    # -- This is for setting up the auth.
     auth:
-      # -- Enable password authentication
       enabled: true
 
     master:
       service:
         ports:
-          # -- Redis master service port
           redis: 6379
 
       persistence:
@@ -423,9 +196,7 @@ n8n:
     port: 5432
     username: postgres
     database: n8n
-
     # ❗ leave password empty OR remove it
     # password: ""
-
     existingSecret: n8n-secret
     existingSecretPasswordKey: DB_POSTGRESDB_PASSWORD
