@@ -1,7 +1,10 @@
 apiVersion: v2
 name: n8n
-version: 1.0.0
+description: n8n deployment via Helm
+type: application
+version: 0.1.0
+
 dependencies:
   - name: n8n
     version: 1.16.31
-    repository: https://community-charts.github.io/helm-charts
+    repository: https://helm-charts.n8n.io
