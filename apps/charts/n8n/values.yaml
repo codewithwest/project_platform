@@ -36,7 +36,7 @@ n8n:
           cpu: 500m
           memory: 256Mi
 
-  db:
+  db: 
     tablePrefix: ""
     type: postgresdb
 
@@ -194,4 +194,4 @@ n8n:
     database: n8n
     # ❗ leave password empty OR remove it
     # password: ""
-    existingSecret: postgress-password
+    existingSecret: n8n-secret
