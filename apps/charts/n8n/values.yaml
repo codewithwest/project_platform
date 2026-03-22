@@ -33,7 +33,7 @@ n8n:
           cpu: 100m
           memory: 128Mi
         limits:
-          cpu: 500m
+          cpu: 250m
           memory: 256Mi
 
   db: 
@@ -87,7 +87,7 @@ n8n:
       existingClaim: ""
       mountPath: "/home/node/.n8n"
       subPath: ""
-      storageClass: ""
+      storageClass: "microk8s-hostpath"
       accessMode: ReadWriteOnce
       size: 8Gi
       annotations:
@@ -109,9 +109,10 @@ n8n:
       enabled: true
       volumeName: "n8n-worker-pv"
       existingClaim: ""
+      storageClass: "microk8s-hostpath"
       mountPath: "/home/node/.n8n"
       accessMode: ReadWriteOnce
-      size: 8Gi
+      size: 5Gi
       annotations:
         helm.sh/resource-policy: keep
       labels: {}
