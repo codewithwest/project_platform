@@ -112,7 +112,7 @@ n8n:
       storageClass: "microk8s-hostpath"
       mountPath: "/home/node/.n8n"
       accessMode: ReadWriteOnce
-      size: 5Gi
+      size: 8Gi
       annotations:
         helm.sh/resource-policy: keep
       labels: {}
