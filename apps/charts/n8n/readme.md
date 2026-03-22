@@ -10,8 +10,16 @@ kubectl create secret generic postgres-credentials \
   --dry-run=client -o yaml > unsealed-secret.yaml
 ```
 
+```sh
 kubeseal \
  --controller-name=sealed-secrets \
  --controller-namespace=management \
  -f postgres-secret.yaml \
  -o yaml > postgres-sealedsecret.yaml
+```
+
+# cli sync
+
+```sh
+kubectl delete pod -n applications -l app.kubernetes.io/name=n8n-worker
+```
