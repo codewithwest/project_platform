@@ -97,7 +97,7 @@ n8n:
   worker:
     # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
     mode: queue
-    concurrency: 10
+    concurrency: 5
     count: 1
     allNodes: false
     autoscaling:
@@ -202,3 +202,9 @@ n8n:
     # ❗ leave password empty OR remove it
     # password: ""
     existingSecret: n8n-secret
+
+
+  # DB_POSTGRESDB_USER:                     postgres
+  #     DB_POSTGRESDB_PASSWORD:                 <set to the key 'postgres-password' in secret 'n8n-secret'>  Optional: true
+  #     QUEUE_BULL_REDIS_USERNAME:              <set to the key 'redis-username' in secret 'n8n-redis'>      Optional: true
+  #     QUEUE_BULL_REDIS_PASSWORD:              <set to the key 'redis-password' in secret 'n8n-redis'>      Optional: true
