@@ -197,7 +197,7 @@ n8n:
   externalPostgresql:
     host: postgres-postgresql.storage.svc.cluster.local
     port: 5432
-    username: postgres
+    username: n8n
     database: n8n
     # ❗ leave password empty OR remove it
     # password: ""
