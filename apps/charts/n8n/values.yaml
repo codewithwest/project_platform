@@ -78,6 +78,8 @@ n8n:
     count: 1
     editorBaseUrl: ""
     forceToUseStatefulset: false
+    extraSecretNamesForEnvFrom:
+    - n8n-secret
 
     persistence:
       enabled: true
@@ -96,7 +98,7 @@ n8n:
     # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
     mode: queue
     concurrency: 10
-    count: 2
+    count: 1
     allNodes: false
     autoscaling:
       enabled: false
@@ -113,6 +115,8 @@ n8n:
       annotations:
         helm.sh/resource-policy: keep
       labels: {}
+    extraSecretNamesForEnvFrom:
+    - n8n-secret
 
   existingEncryptionKeySecret: n8n-secret
   webhook:
@@ -124,6 +128,8 @@ n8n:
       enabled: false
       minReplicas: 1
       maxReplicas: 2
+    extraSecretNamesForEnvFrom:
+      - n8n-secret
 
   taskRunners:
     mode: external
@@ -146,8 +152,8 @@ n8n:
           cpu: 100m
           memory: 32Mi
         limits:
-          cpu: 500m
-          memory: 512Mi
+          cpu: 250m
+          memory: 256Mi
 
   timezone: "Africa/Johannesburg"
   defaultLocale: en
