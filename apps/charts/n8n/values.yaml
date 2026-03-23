@@ -45,35 +45,6 @@ n8n:
       options: error
       maxQueryExecutionTime: 0
 
-    # postgresdb:
-    #   poolSize: 2
-    #   connectionTimeout: 20000
-    #   idleConnectionTimeout: 30000
-    #   schema: public
-    #   ssl:
-    #     enabled: false
-    #     base64EncodedCertificateAuthorityFile: ""
-    #     base64EncodedCertFile: ""
-    #     base64EncodedPrivateKeyFile: ""
-    #     existingCertificateAuthorityFileSecret:
-    #       name: ""
-    #       # -- The key of the certificate authority file in the existing secret.
-    #       key: "ca.crt"
-    #     # -- The PostgreSQL existing certificate file secret.
-    #     existingCertFileSecret:
-    #       # -- The name of the existing secret.
-    #       name: ""
-    #       # -- The key of the certificate file in the existing secret.
-    #       key: "cert.crt"
-    #     # -- The PostgreSQL existing SSL private key file secret.
-    #     existingPrivateKeyFileSecret:
-    #       # -- The name of the existing secret.
-    #       name: ""
-    #       # -- The key of the SSL private key file in the existing secret.
-    #       key: "cert.key"
-    #     # -- If n8n should reject unauthorized SSL connections (true) or not (false).
-    #     rejectUnauthorized: true
-
   main:
     count: 1
     editorBaseUrl: ""
@@ -95,6 +66,7 @@ n8n:
       labels: {}
 
   worker:
+    enabled: false
     # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
     mode: queue
     concurrency: 5
@@ -121,6 +93,7 @@ n8n:
 
   existingEncryptionKeySecret: n8n-secret
   webhook:
+    enabled: false
     mode: queue
     url: ""
     count: 2
