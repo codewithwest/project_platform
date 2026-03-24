@@ -10,7 +10,7 @@ auth:
 
   existingSecret: postgres-credentials
   secretKeys:
-    adminPasswordKey: password
+    adminPasswordKey: postgres-password
     userPasswordKey: password
 
 resources:
