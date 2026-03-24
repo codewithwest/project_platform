@@ -68,7 +68,7 @@ n8n:
   worker:
     # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
     mode: queue
-    concurrency: 2
+    concurrency: 5
     count: 1
     allNodes: false
     autoscaling:
