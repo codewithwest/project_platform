@@ -94,7 +94,7 @@ n8n:
   webhook:
     mode: queue
     url: ""
-    count: 2
+    count: 1
     allNodes: false
     autoscaling:
       enabled: false
