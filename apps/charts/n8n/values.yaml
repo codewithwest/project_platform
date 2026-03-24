@@ -66,10 +66,10 @@ n8n:
       labels: {}
 
   worker:
-    enabled: false
+    enabled: true
     # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
     mode: queue
-    concurrency: 5
+    concurrency: 2
     count: 1
     allNodes: false
     autoscaling:
@@ -93,7 +93,7 @@ n8n:
 
   existingEncryptionKeySecret: n8n-secret
   webhook:
-    enabled: false
+    enabled: true
     mode: queue
     url: ""
     count: 2
@@ -109,7 +109,7 @@ n8n:
     mode: internal
     taskTimeout: 60
     taskHeartbeatInterval: 30
-    maxConcurrency: 5
+    maxConcurrency: 2
     broker:
       address: "127.0.0.1"
       port: 5679
