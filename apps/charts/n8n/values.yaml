@@ -66,7 +66,6 @@ n8n:
       labels: {}
 
   worker:
-    enabled: true
     # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
     mode: queue
     concurrency: 2
@@ -93,7 +92,6 @@ n8n:
 
   existingEncryptionKeySecret: n8n-secret
   webhook:
-    enabled: true
     mode: queue
     url: ""
     count: 2
