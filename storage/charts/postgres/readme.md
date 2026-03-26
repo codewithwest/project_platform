@@ -16,6 +16,15 @@ kubectl get pods -n storage
 kubectl exec -i <pod-name> -n storage -- psql
 ```
 
+4. Enable Trust Mode:
+   Run this command to replace the authentication method with trust in the configuration file:
+
+```sh
+sed -i 's/md5/trust/g' /opt/bitnami/postgresql/conf/pg_hba.conf
+# If your version uses scram, use this instead:
+sed -i 's/scram-sha-256/trust/g' /opt/bitnami/postgresql/conf/pg_hba.conf
+```
+
 4. force new password
 
 ```sh

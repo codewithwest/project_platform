@@ -5,13 +5,13 @@ primary:
     storageClass: standard
 
 auth:
-  username: n8n
+  username: postgres
   database: n8n
 
-  existingSecret: postgres-credentials
-  secretKeys:
-    adminPasswordKey: postgres-password
-    userPasswordKey: password
+  # existingSecret: postgres-credentials
+  # secretKeys:
+  #   adminPasswordKey: postgres-password
+  #   userPasswordKey: password
 
 resources:
   requests:

@@ -11,14 +11,9 @@
 Download the .deb file
 
 ```sh
- wget https://github.com/derailed/k9s/releases/download/v0.50.9/k9s_linux_amd64.deb
+curl -sS https://webinstall.dev/k9s | bash
 ```
 
-install the .deb file
-
-```sh
-sudo apt install ./k9s_linux_amd64.deb
-```
 ## Kubectl
 
 ```sh
