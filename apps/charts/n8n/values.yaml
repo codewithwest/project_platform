@@ -135,7 +135,7 @@ n8n:
       nginx.ingress.kubernetes.io/proxy-body-size: "50m"
       # kubernetes.io/tls-acme: "true"
     hosts:
-      - host: n8n.ginger.internal
+      - host: n8n.westdynamics.internal
         paths:
           - path: /
             pathType: Prefix
