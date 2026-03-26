@@ -4,7 +4,12 @@ services:
   pihole:
     image: pihole/pihole:latest
     container_name: pihole
-    network_mode: "host"
+    network_mode: bridge
+    ports:
+      - "8081:80" # web UI
+      - "8443:443" # optional HTTPS
+      - "53:53/tcp" # DNS TCP
+      - "53:53/udp"
     environment:
       TZ: Africa/Johannesburg
       WEBPASSWORD: admin
