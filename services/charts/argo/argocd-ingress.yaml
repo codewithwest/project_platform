@@ -5,7 +5,6 @@ metadata:
   namespace: management
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
 spec:
   ingressClassName: nginx
   rules:
@@ -16,6 +15,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: argocd-server
+            name: argo-argocd-server  # Fixed name to match your 'kubectl get svc' output
             port:
-              name: http
+              number: 80              # Matches the port in your service list
