@@ -1,6 +1,5 @@
 # Setup microk8s
 
-
 ## 1. Install microk8s
 
 ```bash
@@ -13,7 +12,7 @@ sudo snap install microk8s --classic
 sudo usermod -a -G microk8s $USER
 ```
 
-### After this, reload the user groups either via a reboot or by running 
+### After this, reload the user groups either via a reboot or by running
 
 ```bash
 newgrp microk8s
@@ -73,6 +72,16 @@ MicroK8s has a built-in command to refresh its certificates using a custom CA di
 
 ```bash
 sudo microk8s refresh-certs --cert ca.crt
+```
+
+### 3. Enable Ingress
+
+microk8s enable ingress
+
+### 4. Enable Certificate manager
+
+```sh
+microk8s enable cert-manager
 ```
 
 **Note**: This will restart the kubelite service. Your cluster will be briefly unreachable.
