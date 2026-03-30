@@ -4,10 +4,15 @@ metadata:
   name: argocd-server-ingress
   namespace: management
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # This tells Nginx to handle the SSL and talk to the backend over HTTP
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - argo.westdynamics.internal
+    secretName: argocd-server-tls  # The secret we just created
   rules:
   - host: argo.westdynamics.internal
     http:
@@ -16,6 +21,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: argo-argocd-server  # Fixed name to match your 'kubectl get svc' output
+            name: argo-argocd-server
             port:
-              number: 80              # Matches the port in your service list
+              number: 80
