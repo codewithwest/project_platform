@@ -1,8 +1,8 @@
 apiVersion: v2
-name: harbor-wrapper
+name: harbor
 version: 1.0.0
 
 dependencies:
   - name: harbor
-    version: 1.3.2
+    version: 1.15.0
     repository: "https://helm.goharbor.io"
