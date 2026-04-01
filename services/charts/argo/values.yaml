@@ -1,7 +1,8 @@
+# Note: Use 'argo-cd' or 'server' depending on your specific chart version.
+# For the official argo-cd chart, 'server' is the top-level key.
 argo:
-  server:
-    extraArgs:
-      - --insecure # Allows the Ingress to talk to the pod over HTTP
+  extraArgs:
+    - --insecure # Required for the Ingress to talk to the pod over HTTP
 
   config:
     url: https://argo.westdynamics.io
@@ -11,6 +12,7 @@ argo:
     enabled: true
     ingressClassName: nginx
     annotations:
+      # These match your manual manifest perfectly
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     hosts:
