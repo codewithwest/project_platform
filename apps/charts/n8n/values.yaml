@@ -33,7 +33,7 @@ n8n:
           cpu: 250m
           memory: 256Mi
 
-  db: 
+  db:
     tablePrefix: ""
     type: postgresdb
 
@@ -47,7 +47,7 @@ n8n:
     editorBaseUrl: ""
     forceToUseStatefulset: false
     extraSecretNamesForEnvFrom:
-    - n8n-secret
+      - n8n-secret
 
     persistence:
       enabled: true
@@ -85,7 +85,7 @@ n8n:
         helm.sh/resource-policy: keep
       labels: {}
     extraSecretNamesForEnvFrom:
-    - n8n-secret
+      - n8n-secret
 
   existingEncryptionKeySecret: n8n-secret
   webhook:
@@ -135,7 +135,7 @@ n8n:
       nginx.ingress.kubernetes.io/proxy-body-size: "50m"
       # kubernetes.io/tls-acme: "true"
     hosts:
-      - host: n8n.westdynamics.internal
+      - host: n8n.westdynamics.io
         paths:
           - path: /
             pathType: Prefix

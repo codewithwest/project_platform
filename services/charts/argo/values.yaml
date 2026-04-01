@@ -1,11 +1,11 @@
 server:
   extraArgs:
-    - --insecure  # Allows the Ingress to talk to the pod over HTTP
-  
+    - --insecure # Allows the Ingress to talk to the pod over HTTP
+
   config:
-    url: https://argo.westdynamics.internal
+    url: https://argo.westdynamics.io
     statusbadge.enabled: "false"
-  
+
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -13,8 +13,8 @@ server:
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     hosts:
-      - argo.westdynamics.internal
+      - argo.westdynamics.io
     tls:
       - secretName: argocd-server-tls
         hosts:
-          - argo.westdynamics.internal
+          - argo.westdynamics.io

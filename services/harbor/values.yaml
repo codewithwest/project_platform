@@ -1,25 +1,29 @@
 harbor:
-  hostname: harbor.west.home
-  externalURL: http://harbor.west.home:30082
+  # 1. Update the hostname and externalURL to use HTTPS (No ports)
+  hostname: harbor.westdynamics.io
+  externalURL: https://harbor.westdynamics.io
   harborAdminPassword: "admin123"
 
   expose:
-    type: nodePort
-    nodePort:
-      ports:
-        http:
-          port: 80
-          nodePort: 30082
-        https:
-          port: 443
-          nodePort: 30445
+    # 2. Switch from nodePort to ingress
+    type: ingress
     tls:
       enabled: true
-      commonName: "192.168.100.46"
-      altNames:
-        - "192.168.100.46"
-        - "harbor.local"
-        - "harbor.west.home"
+      certSource: secret
+      # This refers to the K8s secret containing your SSL certs
+      secretName: harbor-tls-secret
+      commonName: "harbor.westdynamics.io"
+
+    ingress:
+      hosts:
+        core: harbor.westdynamics.io
+      className: nginx
+      annotations:
+        ingress.kubernetes.io/ssl-redirect: "true"
+        ingress.kubernetes.io/proxy-body-size: "0" # Crucial for pushing large Docker images
+        nginx.ingress.kubernetes.io/proxy-body-size: "0"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "900"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "900"
 
   persistence:
     persistentVolumeClaim:

@@ -10,17 +10,17 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
-    - argo.westdynamics.internal
-    secretName: argocd-server-tls  # The secret we just created
+    - hosts:
+        - argo.westdynamics.io
+      secretName: argocd-server-tls # The secret we just created
   rules:
-  - host: argo.westdynamics.internal
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: argo-argocd-server
-            port:
-              number: 80
+    - host: argo.westdynamics.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argo-argocd-server
+                port:
+                  number: 80

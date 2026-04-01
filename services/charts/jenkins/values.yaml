@@ -1,22 +1,17 @@
 jenkins:
   controller:
-    serviceType: NodePort
+    # Disable NodePort and use ClusterIP for internal K8s routing
+    serviceType: ClusterIP
     servicePort: 8080
-    nodePort: 30090
-    numExecutors: 0
-    jenkinsUrl: "http://192.168.100.46:30090"
-
-    agentListenerEnabled: true
-    agentListenerPort: 50000
+    targetPort: 8080
+    
+    # The URL users and agents will use (No port needed with Ingress)
+    jenkinsUrl: "https://jenkins.westdynamics.io"
 
     image:
       tag: latest-jdk21
 
-    persistence:
-      enabled: true
-      storageClass: standard
-      size: 5Gi
-
+    # Resource management for your MicroK8s node
     resources:
       requests:
         cpu: 500m
@@ -25,6 +20,7 @@ jenkins:
         cpu: 500m
         memory: 1Gi
 
+    # Essential plugins for your workflow
     installPlugins:
       - kubernetes:latest
       - git:latest
@@ -36,36 +32,41 @@ jenkins:
       - branch-api:latest
       - theme-manager:latest
 
-    startupProbe:
-      initialDelaySeconds: 120
-      periodSeconds: 30
-      failureThreshold: 10
+    persistence:
+      enabled: true
+      storageClass: standard
+      size: 5Gi
 
+    # Mount docker socket for Docker-out-of-Docker (DooD)
     volumes:
       - name: docker-sock
         hostPath:
           path: /var/run/docker.sock
           type: Socket
-
     volumeMounts:
       - name: docker-sock
         mountPath: /var/run/docker.sock
 
-  sidecars:
-    configAutoReload:
-      env:
-        - name: REQ_RETRY_CONNECT
-          value: "60"
-        - name: REQ_INITIAL_DELAY
-          value: "120"
-        - name: SKIP_TLS_VERIFY
-          value: "true"
-        - name: VERIFY_TLS
-          value: "false"
+  # Ingress Controller Configuration
+  # Ensure 'microk8s enable ingress' is run on the node
+  ingress:
+    enabled: true
+    apiVersion: "networking.k8s.io/v1"
+    ingressClassName: nginx
+    hostName: jenkins.westdynamics.io
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/proxy-body-size: "50m"
 
+  # Configuration as Code (JCasC)
   JCasC:
     enabled: true
     configScripts:
+      # Sets the 'Jenkins URL' in System Settings automatically
+      location: |
+        unclassified:
+          location:
+            url: "https://jenkins.westdynamics.io"
       security: |
         jenkins:
           securityRealm:
@@ -77,20 +78,15 @@ jenkins:
           authorizationStrategy:
             loggedInUsersCanDoAnything:
               allowAnonymousRead: false
-      # reverse-proxy: |
-      #   jenkins:
-      #     systemMessage: "Running behind NGINX reverse proxy"
-      #     remotingSecurity:
-      #       enabled: true
-      #     crumbIssuer:
-      #       standard:
-      #         excludeClientIPFromCrumb: true
 
+  # Agent configuration to use the internal ClusterIP service
   agent:
     enabled: true
     image:
       repository: docker
       tag: "28-cli"
+    # Points to the internal K8s service name so traffic never leaves the cluster
+    jenkinsUrl: "http://{{ template "jenkins.fullname" . }}:8080"
     privileged: false
     volumes:
       - type: HostPath
