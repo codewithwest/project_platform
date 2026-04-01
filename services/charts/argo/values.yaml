@@ -1,5 +1,7 @@
 # Note: Use 'argo-cd' or 'server' depending on your specific chart version.
 # For the official argo-cd chart, 'server' is the top-level key.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 argo:
   extraArgs:
     - --insecure # Required for the Ingress to talk to the pod over HTTP
