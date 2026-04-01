@@ -28,15 +28,15 @@ harbor:
   persistence:
     persistentVolumeClaim:
       registry:
-        storageClass: standard
+        storageClass: microk8s-hostpath
         accessMode: ReadWriteOnce
         size: 5Gi
       chartmuseum:
-        storageClass: standard
+        storageClass: microk8s-hostpath
         accessMode: ReadWriteOnce
         size: 1Gi
       jobservice:
-        storageClass: standard
+        storageClass: microk8s-hostpath
         accessMode: ReadWriteOnce
         size: 1Gi
 

@@ -39,7 +39,7 @@ controller:
   # Persistence for MicroK8s (Uses 'standard' or 'microk8s-hostpath')
   persistence:
     enabled: true
-    storageClass: "standard"
+    storageClass: "microk8s-hostpath"
     size: "10Gi"
 
   # Ingress Controller Configuration
@@ -52,7 +52,7 @@ controller:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/proxy-body-size: "50m"
       nginx.ingress.kubernetes.io/custom-http-errors: "404,502,503,504"
-      nginx.ingress.kubernetes.io/default-backend: "error-404"
+      nginx.ingress.kubernetes.io/default-backend: "management/error-404"
       # cert-manager.io/cluster-issuer: "letsencrypt-prod" # Optional: if using cert-manager
     tls:
       - secretName: jenkins-tls-secret
