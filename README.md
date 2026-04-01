@@ -31,6 +31,7 @@ This is a documentation for the project platform, this is all the steps required
 - [Tools](./docs/tools.md)
 - [Argo CD for Microk8s](./services/argo/microk8s.md) or [Argo CD for Minikube](./services/argo/minikube.md)
 - [Jenkins](./services/jenkins/microk8s.md)
+- [Custom 404 Setup](./docs/404-setup.md)
 
 ## Deployment reusables
 
