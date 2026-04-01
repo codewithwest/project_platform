@@ -126,8 +126,8 @@ controller:
       cpu: "50m"
       memory: "256Mi"
     limits:
-      cpu: "2000m"
-      memory: "4096Mi"
+      cpu: "500m"
+      memory: "1024Mi"
 
   # Share process namespace to allow sidecar containers to interact with processes in other containers in the same pod
   shareProcessNamespace: false
@@ -708,7 +708,7 @@ controller:
 
   ingress:
     # -- Enables ingress
-    enabled: false
+    enabled: true
 
     # Override for the default paths that map requests to the backend
     # -- Override for the default Ingress paths
@@ -732,9 +732,11 @@ controller:
     # -- Ingress labels
     labels: {}
     # -- Ingress annotations
-    annotations: {}
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+      nginx.ingress.kubernetes.io/custom-http-errors: "404,502,503,504"
+      nginx.ingress.kubernetes.io/default-backend: "management/error-404"
     # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
     # ingressClassName: nginx
@@ -745,14 +747,14 @@ controller:
 
     # configures the hostname e.g. jenkins.example.com
     # -- Ingress hostname
-    hostName:
+    hostName: jenkins.westdynamics.io
     # -- Hostname to serve assets from
     resourceRootUrl:
     # -- Ingress TLS configuration
-    tls: []
-    # - secretName: jenkins.cluster.local
-    #   hosts:
-    #     - jenkins.cluster.local
+    tls:
+      - secretName: jenkins-tls-secret
+        hosts:
+          - jenkins.westdynamics.io
 
   # often you want to have your controller all locked down and private,
   # but you still want to get webhooks from your SCM
@@ -1299,7 +1301,7 @@ persistence:
   # If undefined (the default) or set to null, no storageClassName spec is
   #   set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack)
   # -- Storage class for the PVC
-  storageClass:
+  storageClass: "microk8s-hostpath"
   # -- Annotations for the PVC
   annotations: {}
   # -- Labels for the PVC
