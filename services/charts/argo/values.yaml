@@ -25,7 +25,10 @@ server:
       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 
     hosts:
-      - argo.westdynamics.io
+      - host: argo.westdynamics.io
+        paths:
+          - path: /
+            pathType: Prefix
 
     tls:
       - secretName: argocd-server-tls
