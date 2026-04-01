@@ -1,21 +1,6 @@
 # Argo CD Helm values.yaml
 
 server:
-  extraArgs:
-    - --insecure
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 500m
-      memory: 512Mi
-      # Required when using ingress with HTTP backend
-
-  config:
-    url: https://argo.westdynamics.io
-    statusbadge.enabled: "false"
-
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -34,6 +19,14 @@ server:
       - secretName: argocd-server-tls
         hosts:
           - argo.westdynamics.io
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 # Optional but recommended
 configs:
