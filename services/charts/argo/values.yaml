@@ -1,6 +1,7 @@
-server:
-  extraArgs:
-    - --insecure # Allows the Ingress to talk to the pod over HTTP
+argo:
+  server:
+    extraArgs:
+      - --insecure # Allows the Ingress to talk to the pod over HTTP
 
   config:
     url: https://argo.westdynamics.io
