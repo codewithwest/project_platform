@@ -15,6 +15,7 @@ harbor:
       commonName: "harbor.westdynamics.io"
 
     ingress:
+      apiVersion: networking.k8s.io/v1
       hosts:
         core: harbor.westdynamics.io
       className: nginx
