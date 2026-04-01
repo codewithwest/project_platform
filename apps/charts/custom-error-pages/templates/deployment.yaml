@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "custom-error-pages.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ include "custom-error-pages.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "custom-error-pages.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "custom-error-pages.name" . }}
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: html
+              mountPath: /usr/share/nginx/html/404.html
+              subPath: 404.html
+            - name: config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+      volumes:
+        - name: html
+          configMap:
+            name: {{ include "custom-error-pages.fullname" . }}
+        - name: config
+          configMap:
+            name: {{ include "custom-error-pages.fullname" . }}
