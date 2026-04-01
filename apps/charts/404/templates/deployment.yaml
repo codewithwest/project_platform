@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "custom-error-pages.fullname" . }}
-  namespace: {{ .Values.namespace }}
+  name: {{ include "custom-error-pages.fullname" . | quote }}
+  namespace: {{ .Values.namespace | quote }}
   labels:
-    app: {{ include "custom-error-pages.name" . }}
+    app: {{ include "custom-error-pages.name" . | quote }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "custom-error-pages.name" . }}
+      app: {{ include "custom-error-pages.name" . | quote }}
   template:
     metadata:
       labels:
-        app: {{ include "custom-error-pages.name" . }}
+        app: {{ include "custom-error-pages.name" . | quote }}
     spec:
       containers:
         - name: nginx
@@ -35,7 +35,7 @@ spec:
       volumes:
         - name: html
           configMap:
-            name: {{ include "custom-error-pages.fullname" . }}
+            name: {{ include "custom-error-pages.fullname" . | quote }}
         - name: config
           configMap:
-            name: {{ include "custom-error-pages.fullname" . }}
+            name: {{ include "custom-error-pages.fullname" . | quote }}
