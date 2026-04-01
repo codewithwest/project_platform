@@ -8,11 +8,11 @@ controller:
   # Resource management for your MicroK8s node
   resources:
     requests:
-      cpu: "500m"
+      cpu: "250m"
       memory: "512Mi"
     limits:
-      cpu: "1000m"
-      memory: "2Gi" # Bumped to 2Gi to prevent OOM kills during plugin sync
+      cpu: "500m"
+      memory: "1Gi" # Bumped to 2Gi to prevent OOM kills during plugin sync
 
   # The URL users and agents will use
   jenkinsUrl: "https://jenkins.westdynamics.io"
