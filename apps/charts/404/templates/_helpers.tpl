@@ -2,21 +2,13 @@
 Expand the name of the chart.
 */}}
 {{- define "custom-error-pages.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- "error-404" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
+Hardcoded to avoid DNS-1035 errors when release name starts with a number.
 */}}
 {{- define "custom-error-pages.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
-{{- end }}
-{{- end }}
+{{- "error-404" }}
 {{- end }}
