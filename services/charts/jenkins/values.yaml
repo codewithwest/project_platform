@@ -84,7 +84,7 @@ jenkins:
     enabled: true
     image:
       repository: docker
-      tag: "28-cli"
+      tag: "29-cli"
     # Points to the internal K8s service name so traffic never leaves the cluster
     jenkinsUrl: "http://{{ template "jenkins.fullname" . }}:8080"
     privileged: false
