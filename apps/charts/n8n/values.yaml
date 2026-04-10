@@ -147,27 +147,29 @@ n8n:
   existingEncryptionKeySecret: n8n-secret
 
   taskRunners:
-    mode: external
-    taskTimeout: 60
-    taskHeartbeatInterval: 30
-    maxConcurrency: 2
+    enabled: true
+    
+    authToken:
+      existingSecret: "n8n-secret"
+      existingSecretKey: "N8N_ENCRYPTION_KEY"   # 👈 use this key
+
     broker:
-      address: "127.0.0.1"
+      listenAddress: "0.0.0.0"
       port: 5679
-    external:
-      # We stripped 'enabled' and 'authToken' because the schema flagged them
+
+    launcher:
+      logLevel: info
       autoShutdownTimeout: 15
-      port: 5680
-      nodeOptions:
-        - "--max-semi-space-size=16"
-        - "--max-old-space-size=300"
-      resources:
-        requests:
-          cpu: 100m
-          memory: 32Mi
-        limits:
-          cpu: 250m
-          memory: 256Mi
+
+    nativePythonRunner: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
 
   timezone: "Africa/Johannesburg"
   defaultLocale: en
