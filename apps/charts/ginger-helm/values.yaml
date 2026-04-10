@@ -47,6 +47,9 @@ redis:
 
 # ChromaDB
 chromadb:
+  image: chromadb/chroma:latest
+  tag: latest
+  replicas: 1
   persistence:
     enabled: true
     size: 10Gi

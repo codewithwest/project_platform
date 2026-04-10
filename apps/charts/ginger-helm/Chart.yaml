@@ -8,6 +8,3 @@ dependencies:
   - name: redis
     version: 18.6.2
     repository: https://charts.bitnami.com/bitnami
-  - name: chromadb
-    version: 0.1.0
-    repository: https://charts.chromadb.io # Note: Replace with actual repo if different

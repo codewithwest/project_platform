@@ -10,3 +10,17 @@ spec:
   resources:
     requests:
       storage: {{ .Values.ginger.storage.modelsSize }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "ginger.fullname" . }}-chroma-pvc
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.chromadb.persistence.size }}

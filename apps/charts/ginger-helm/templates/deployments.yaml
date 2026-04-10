@@ -106,3 +106,34 @@ spec:
         - name: config-volume
           configMap:
             name: {{ include "ginger.fullname" . }}-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ginger.fullname" . }}-chromadb
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.chromadb.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ginger.selectorLabels" . | nindent 6 }}
+      component: chromadb
+  template:
+    metadata:
+      labels:
+        {{- include "ginger.selectorLabels" . | nindent 8 }}
+        component: chromadb
+    spec:
+      containers:
+        - name: chromadb
+          image: "{{ .Values.chromadb.image }}:{{ .Values.chromadb.tag }}"
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: chroma-data
+              mountPath: /chroma/chroma
+      volumes:
+        - name: chroma-data
+          persistentVolumeClaim:
+            claimName: {{ include "ginger.fullname" . }}-chroma-pvc
