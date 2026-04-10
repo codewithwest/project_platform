@@ -147,30 +147,32 @@ n8n:
   existingEncryptionKeySecret: n8n-secret
 
   taskRunners:
-    mode: external
-    taskTimeout: 60
-    taskHeartbeatInterval: 30
-    maxConcurrency: 2
-    broker:
-      address: "0.0.0.0"
-      port: 5679
-    external:
-      existingMainNodeAuthTokenSecret: "n8n-secret"
-      mainNodeAuthTokenKey: "N8N_ENCRYPTION_KEY"
-      existingWorkerNodeAuthTokenSecret: "n8n-secret"
-      workerNodeAuthTokenKey: "N8N_ENCRYPTION_KEY"
-      autoShutdownTimeout: 15
-      port: 5680
-      nodeOptions:
-        - "--max-semi-space-size=16"
-        - "--max-old-space-size=300"
-      resources:
-        requests:
-          cpu: 100m
-          memory: 32Mi
-        limits:
-          cpu: 250m
-          memory: 256Mi
+      enabled: true  # Ensure this is set
+      mode: external
+      # Move these two lines OUT of the 'external' block:
+      existingSecret: "n8n-secret"
+      authTokenKey: "N8N_ENCRYPTION_KEY"
+      
+      taskTimeout: 60
+      taskHeartbeatInterval: 30
+      maxConcurrency: 2
+      broker:
+        address: "0.0.0.0"
+        port: 5679
+      external:
+        # Keep the runner-specific settings here
+        autoShutdownTimeout: 15
+        port: 5680
+        nodeOptions:
+          - "--max-semi-space-size=16"
+          - "--max-old-space-size=300"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 32Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
 
   timezone: "Africa/Johannesburg"
   defaultLocale: en
