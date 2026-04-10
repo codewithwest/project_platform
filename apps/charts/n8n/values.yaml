@@ -44,8 +44,6 @@ n8n:
 
   main:
     count: 1
-    editorBaseUrl: ""
-    forceToUseStatefulset: false
     extraSecretNamesForEnvFrom:
       - n8n-secret
     extraEnvVars:
@@ -64,69 +62,47 @@ n8n:
             valueFrom:
               secretKeyRef:
                 name: n8n-secret
-                key: N8N_ENCRYPTION_KEY # Using this key as the runner auth
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
+                key: N8N_ENCRYPTION_KEY
     persistence:
       enabled: true
       volumeName: "n8n-main-pv"
       storageClass: "microk8s-hostpath"
-      mountPath: "/home/node/.n8n"
-      accessMode: ReadWriteOnce
       size: 8Gi
-      annotations:
-        helm.sh/resource-policy: keep
+  # --- WORKER SECTION (Now correctly un-indented) ---
+  worker:
+    mode: queue
+    count: 1
+    extraSecretNamesForEnvFrom:
+      - n8n-secret
+    extraEnvVars:
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_MODE: "external"
+    extraContainers:
+      - name: task-runner
+        image: n8nio/runners:2.12.3
+        env:
+          - name: N8N_RUNNERS_TASK_BROKER_URI
+            value: "http://127.0.0.1:5679"
+          - name: N8N_RUNNERS_AUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: n8n-secret
+                key: N8N_ENCRYPTION_KEY
+    persistence:
+      enabled: true
+      volumeName: "n8n-worker-pv"
+      storageClass: "microk8s-hostpath"
+      size: 8Gi
 
-    worker:
-      mode: queue
-      concurrency: 5
-      count: 1
-      extraSecretNamesForEnvFrom:
-        - n8n-secret
-      extraEnvVars:
-        N8N_RUNNERS_ENABLED: "true"
-        N8N_RUNNERS_MODE: "external"
-      # Added sidecar to worker so it can actually execute Python/Node tasks
-      extraContainers:
-        - name: task-runner
-          image: n8nio/runners:2.12.3
-          env:
-            - name: N8N_RUNNERS_TASK_BROKER_URI
-              value: "http://127.0.0.1:5679"
-            - name: N8N_RUNNERS_AUTH_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: n8n-secret
-                  key: N8N_ENCRYPTION_KEY
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
-      persistence:
-        enabled: true
-        volumeName: "n8n-worker-pv"
-        storageClass: "microk8s-hostpath"
-        mountPath: "/home/node/.n8n"
-        accessMode: ReadWriteOnce
-        size: 8Gi
-
-    webhook:
-      mode: queue
-      count: 1
-      extraSecretNamesForEnvFrom:
-        - n8n-secret
-      extraEnvVars:
-        N8N_RUNNERS_ENABLED: "true"
-        N8N_RUNNERS_MODE: "external"
-
+  # --- WEBHOOK SECTION (Now correctly un-indented) ---
+  webhook:
+    mode: queue
+    count: 1
+    extraSecretNamesForEnvFrom:
+      - n8n-secret
+    extraEnvVars:
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_MODE: "external"
   taskRunners:
     mode: external
     taskTimeout: 60
