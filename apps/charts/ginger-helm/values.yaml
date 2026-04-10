@@ -4,7 +4,7 @@ global:
 
 # Ginger Application Settings
 ginger:
-  image: ghcr.io/westdynamics/ginger:latest
+  image: ghcr.io/codewithwest/ginger-framework:devlatest
   tag: latest
   replicas: 1
   service:
@@ -15,7 +15,7 @@ ginger:
 
 # Ginger Worker Settings
 worker:
-  image: ghcr.io/westdynamics/ginger:latest
+  image: ghcr.io/codewithwest/ginger-worker:devlatest
   tag: latest
   replicas: 1
   command: ["python", "src/infrastructure/queue/worker.py"]
