@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/westdynamics/project_ginger.git' # Update to your actual repo
+    repoURL: 'https://github.com/westdynamics/project_platform.git' # Update to your actual repo
     targetRevision: HEAD
     path: kubernetes
   destination:
