@@ -36,7 +36,6 @@ n8n:
   db:
     tablePrefix: ""
     type: postgresdb
-
     logging:
       enabled: false
       options: error
@@ -63,15 +62,27 @@ n8n:
               secretKeyRef:
                 name: n8n-secret
                 key: N8N_ENCRYPTION_KEY
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
     persistence:
       enabled: true
       volumeName: "n8n-main-pv"
       storageClass: "microk8s-hostpath"
+      mountPath: "/home/node/.n8n"
+      accessMode: ReadWriteOnce
       size: 8Gi
-  # --- WORKER SECTION (Now correctly un-indented) ---
+      annotations:
+        helm.sh/resource-policy: keep
+
   worker:
     mode: queue
     count: 1
+    concurrency: 5
     extraSecretNamesForEnvFrom:
       - n8n-secret
     extraEnvVars:
@@ -88,13 +99,23 @@ n8n:
               secretKeyRef:
                 name: n8n-secret
                 key: N8N_ENCRYPTION_KEY
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
     persistence:
       enabled: true
       volumeName: "n8n-worker-pv"
       storageClass: "microk8s-hostpath"
+      mountPath: "/home/node/.n8n"
+      accessMode: ReadWriteOnce
       size: 8Gi
+      annotations:
+        helm.sh/resource-policy: keep
 
-  # --- WEBHOOK SECTION (Now correctly un-indented) ---
   webhook:
     mode: queue
     count: 1
@@ -103,6 +124,9 @@ n8n:
     extraEnvVars:
       N8N_RUNNERS_ENABLED: "true"
       N8N_RUNNERS_MODE: "external"
+
+  existingEncryptionKeySecret: n8n-secret
+
   taskRunners:
     mode: external
     taskTimeout: 60
@@ -136,7 +160,6 @@ n8n:
     className: nginx
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-      # kubernetes.io/tls-acme: "true"
     hosts:
       - host: n8n.westdynamics.io
         paths:
@@ -150,18 +173,14 @@ n8n:
   redis:
     enabled: true
     architecture: standalone
-
     image:
       repository: bitnamilegacy/redis
-
     auth:
       enabled: true
-
     master:
       service:
         ports:
           redis: 6379
-
       persistence:
         enabled: false
 
@@ -170,6 +189,4 @@ n8n:
     port: 5432
     username: n8n
     database: n8n
-    # ❗ leave password empty OR remove it
-    # password: ""
     existingSecret: n8n-secret
