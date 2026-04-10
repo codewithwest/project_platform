@@ -2,7 +2,7 @@ n8n:
   image:
     repository: n8nio/n8n
     pullPolicy: IfNotPresent
-    tag: ""
+    tag: stable
   imagePullSecrets: []
   nameOverride: ""
   fullnameOverride: ""
@@ -90,7 +90,7 @@ n8n:
       N8N_RUNNERS_MODE: "external"
     extraContainers:
       - name: task-runner
-        image: n8nio/runners:2.12.3
+        image: n8nio/runners:stable
         env:
           - name: N8N_RUNNERS_TASK_BROKER_URI
             value: "http://127.0.0.1:5679"
