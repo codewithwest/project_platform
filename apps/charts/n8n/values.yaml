@@ -54,7 +54,6 @@ n8n:
       EXECUTIONS_MODE: "queue"
       QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
       QUEUE_BULL_REDIS_PORT: "6379"
-      
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
@@ -101,11 +100,7 @@ n8n:
       EXECUTIONS_MODE: "queue"
       QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
       QUEUE_BULL_REDIS_PORT: "6379"
-      N8N_RUNNERS_AUTH_TOKEN:
-        valueFrom:
-          secretKeyRef:
-            name: n8n-secret
-            key: N8N_ENCRYPTION_KEY
+
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
@@ -160,8 +155,10 @@ n8n:
       address: "0.0.0.0"
       port: 5679
     external:
-      mainNodeAuthToken: ""
-      workerNodeAuthToken: ""
+      existingMainNodeAuthTokenSecret: "n8n-secret"
+      mainNodeAuthTokenKey: "N8N_ENCRYPTION_KEY"
+      existingWorkerNodeAuthTokenSecret: "n8n-secret"
+      workerNodeAuthTokenKey: "N8N_ENCRYPTION_KEY"
       autoShutdownTimeout: 15
       port: 5680
       nodeOptions:
