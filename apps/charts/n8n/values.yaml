@@ -59,7 +59,7 @@ n8n:
         image: n8nio/runners:2.12.3
         env:
           - name: N8N_RUNNERS_TASK_BROKER_URI
-            value: "http://localhost:5679"
+            value: "http://n8n.applications.svc.cluster.local:5679"
           - name: N8N_RUNNERS_AUTH_TOKEN
             valueFrom:
               secretKeyRef:
@@ -108,7 +108,7 @@ n8n:
         image: n8nio/runners:2.12.3
         env:
           - name: N8N_RUNNERS_TASK_BROKER_URI
-            value: "http://localhost:5679"
+            value: "http://n8n.applications.svc.cluster.local:5679"
           - name: N8N_RUNNERS_AUTH_TOKEN
             valueFrom:
               secretKeyRef:
