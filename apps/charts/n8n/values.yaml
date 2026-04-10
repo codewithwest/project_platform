@@ -149,7 +149,7 @@ n8n:
   existingEncryptionKeySecret: n8n-secret
 
   taskRunners:
-    mode: queue
+    mode: internal
     taskTimeout: 60
     taskHeartbeatInterval: 30
     maxConcurrency: 2
