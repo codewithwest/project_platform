@@ -17,7 +17,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: framework
-          image: ghcr.io/westdynamics/ginger:latest
+          image: ghcr.io/westdynamics/ginger:devlatest
           imagePullPolicy: Always
           # ADDED: Resource constraints to prevent noisy neighbor issues
           resources:
@@ -87,7 +87,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: worker
-          image: ghcr.io/westdynamics/ginger:latest
+          image: ghcr.io/westdynamics/ginger:devlatest
           imagePullPolicy: Always
           command: ["python", "src/infrastructure/queue/worker.py"]
           # ADDED: Resource constraints
