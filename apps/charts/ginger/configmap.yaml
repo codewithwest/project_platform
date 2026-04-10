@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ginger-config
-  namespace: ginger-ai
+  namespace: applications
 data:
   # LiteLLM Configuration
   litellm-config.yaml: |

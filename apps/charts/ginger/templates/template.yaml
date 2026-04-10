@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: ginger-secrets
-  namespace: ginger-ai
+  namespace: applications
 type: Opaque
 stringData:
   # LiteLLM Master Key (Must match LITELLM_PROXY_API_KEY in framework)

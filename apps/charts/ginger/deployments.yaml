@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ginger-app
-  namespace: ginger-ai
+  namespace: applications
 spec:
   replicas: 1
   selector:
@@ -44,7 +44,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ginger-chromadb
-  namespace: ginger-ai
+  namespace: applications
 spec:
   replicas: 1
   selector:
@@ -72,7 +72,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ginger-worker
-  namespace: ginger-ai
+  namespace: applications
 spec:
   replicas: 1
   selector:

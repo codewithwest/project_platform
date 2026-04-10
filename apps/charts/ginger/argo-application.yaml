@@ -11,7 +11,7 @@ spec:
     path: kubernetes
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: ginger-ai
+    namespace: applications
   syncPolicy:
     automated:
       prune: true

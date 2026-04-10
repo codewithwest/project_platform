@@ -1,6 +1,6 @@
 # Global settings
 global:
-  namespace: ginger-ai
+  namespace: applications
 
 # Ginger Application Settings
 ginger:

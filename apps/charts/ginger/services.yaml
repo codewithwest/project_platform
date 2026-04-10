@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ginger-redis
-  namespace: ginger-ai
+  namespace: applications
 spec:
   ports:
     - port: 6379
@@ -13,7 +13,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ginger-chromadb
-  namespace: ginger-ai
+  namespace: applications
 spec:
   ports:
     - port: 8000
@@ -24,7 +24,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ginger-litellm
-  namespace: ginger-ai
+  namespace: applications
 spec:
   ports:
     - port: 4000
@@ -35,7 +35,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ginger-app
-  namespace: ginger-ai
+  namespace: applications
 spec:
   ports:
     - port: 8007
