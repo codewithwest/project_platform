@@ -54,11 +54,6 @@ n8n:
       N8N_RUNNERS_BROKER_LISTEN_ADDRESS: "0.0.0.0"
       N8N_RUNNERS_BROKER_PORT: "5679"
       N8N_NATIVE_PYTHON_RUNNER: "true"
-      N8N_RUNNERS_AUTH_TOKEN: 
-        valueFrom:
-          secretKeyRef:
-            name: n8n-secret
-            key: N8N_ENCRYPTION_KEY
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
@@ -69,7 +64,7 @@ n8n:
             valueFrom:
               secretKeyRef:
                 name: n8n-secret
-                key: N8N_ENCRYPTION_KEY
+                key: N8N_ENCRYPTION_KEY # Using this key as the runner auth
         resources:
           requests:
             cpu: 100m
@@ -77,63 +72,60 @@ n8n:
           limits:
             cpu: 500m
             memory: 512Mi
-
     persistence:
       enabled: true
       volumeName: "n8n-main-pv"
-      existingClaim: ""
-      mountPath: "/home/node/.n8n"
-      subPath: ""
       storageClass: "microk8s-hostpath"
+      mountPath: "/home/node/.n8n"
       accessMode: ReadWriteOnce
       size: 8Gi
       annotations:
         helm.sh/resource-policy: keep
-      labels: {}
 
-  worker:
+    worker:
       mode: queue
       concurrency: 5
       count: 1
-      allNodes: false
-      autoscaling:
-        enabled: false
-        minReplicas: 1
-        maxReplicas: 2
+      extraSecretNamesForEnvFrom:
+        - n8n-secret
       extraEnvVars:
         N8N_RUNNERS_ENABLED: "true"
         N8N_RUNNERS_MODE: "external"
-        N8N_RUNNERS_AUTH_TOKEN: 
-          valueFrom:
-            secretKeyRef:
-              name: n8n-secret
-              key: N8N_ENCRYPTION_KEY
+      # Added sidecar to worker so it can actually execute Python/Node tasks
+      extraContainers:
+        - name: task-runner
+          image: n8nio/runners:2.12.3
+          env:
+            - name: N8N_RUNNERS_TASK_BROKER_URI
+              value: "http://127.0.0.1:5679"
+            - name: N8N_RUNNERS_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-secret
+                  key: N8N_ENCRYPTION_KEY
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
       persistence:
         enabled: true
         volumeName: "n8n-worker-pv"
-        existingClaim: ""
         storageClass: "microk8s-hostpath"
         mountPath: "/home/node/.n8n"
         accessMode: ReadWriteOnce
         size: 8Gi
-        annotations:
-          helm.sh/resource-policy: keep
-        labels: {}
+
+    webhook:
+      mode: queue
+      count: 1
       extraSecretNamesForEnvFrom:
         - n8n-secret
-
-  existingEncryptionKeySecret: n8n-secret
-  webhook:
-    mode: queue
-    url: ""
-    count: 1
-    allNodes: false
-    autoscaling:
-      enabled: false
-      minReplicas: 1
-      maxReplicas: 2
-    extraSecretNamesForEnvFrom:
-      - n8n-secret
+      extraEnvVars:
+        N8N_RUNNERS_ENABLED: "true"
+        N8N_RUNNERS_MODE: "external"
 
   taskRunners:
     mode: external
