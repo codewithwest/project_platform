@@ -1,103 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ginger-redis
-  namespace: ginger-ai
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ginger-redis
-  template:
-    metadata:
-      labels:
-        app: ginger-redis
-    spec:
-      containers:
-        - name: redis
-          image: redis:8.4-alpine
-          ports:
-            - containerPort: 6379
-          volumeMounts:
-            - name: redis-data
-              mountPath: /data
-      volumes:
-        - name: redis-data
-          persistentVolumeClaim:
-            claimName: ginger-redis-pvc
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ginger-chromadb
-  namespace: ginger-ai
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ginger-chromadb
-  template:
-    metadata:
-      labels:
-        app: ginger-chromadb
-    spec:
-      containers:
-        - name: chromadb
-          image: chromadb/chroma:latest
-          ports:
-            - containerPort: 8000
-          volumeMounts:
-            - name: chroma-data
-              mountPath: /chroma/chroma
-      volumes:
-        - name: chroma-data
-          persistentVolumeClaim:
-            claimName: ginger-chroma-pvc
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ginger-litellm
-  namespace: ginger-ai
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ginger-litellm
-  template:
-    metadata:
-      labels:
-        app: ginger-litellm
-    spec:
-      containers:
-        - name: litellm
-          image: ghcr.io/berriai/litellm:main-stable
-          ports:
-            - containerPort: 4000
-          envFrom:
-            - configMapRef:
-                name: ginger-config
-            - secretRef:
-                name: ginger-secrets
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: ginger-secrets
-                  key: LITELLM_DATABASE_URL
-          command: ["--config", "/app/config.yaml", "--port", "4000"]
-          volumeMounts:
-            - name: config-volume
-              mountPath: /app/config.yaml
-              subPath: litellm-config.yaml
-      volumes:
-        - name: config-volume
-          configMap:
-            name: ginger-config
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: ginger-app
   namespace: ginger-ai
 spec:
@@ -112,9 +15,16 @@ spec:
     spec:
       containers:
         - name: framework
-          image: ghcr.io/westdynamics/ginger:latest # User to update via workflow
-          ports:
-            - containerPort: 8007
+          image: ghcr.io/westdynamics/ginger:latest
+          imagePullPolicy: Always
+          # ADDED: Resource constraints to prevent noisy neighbor issues
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
           envFrom:
             - configMapRef:
                 name: ginger-config
@@ -145,8 +55,17 @@ spec:
     spec:
       containers:
         - name: worker
-          image: ghcr.io/westdynamics/ginger:latest # User to update via workflow
+          image: ghcr.io/westdynamics/ginger:latest
+          imagePullPolicy: Always
           command: ["python", "src/infrastructure/queue/worker.py"]
+          # ADDED: Resource constraints
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m" # Workers usually need more juice for processing
           envFrom:
             - configMapRef:
                 name: ginger-config
