@@ -147,23 +147,22 @@ n8n:
   existingEncryptionKeySecret: n8n-secret
 
   taskRunners:
+    # If the schema rejected 'enabled' here, move it into the 'external' block below.
     mode: external
     taskTimeout: 60
     taskHeartbeatInterval: 30
     maxConcurrency: 2
-    existingSecret: "n8n-secret"
     broker:
-      address: "0.0.0.0"
+      address: "127.0.0.1" # Sidecars connect via localhost
       port: 5679
     external:
-      # Schema-compliant location for these keys:
-      mainNodeAuthToken: ""
-      # -- The auth token for the worker node
-      workerNodeAuthToken: ""
-      # -- The auto shutdown timeout for the external task runner in seconds      
-      
+      enabled: true        # This is likely where your version expects it
       autoShutdownTimeout: 15
       port: 5680
+      # The community chart often looks for 'authToken' as a sub-block here
+      authToken:
+        existingSecret: "n8n-secret"
+        existingSecretKey: "N8N_ENCRYPTION_KEY" # Note the 'Key' suffix required by some versions
       nodeOptions:
         - "--max-semi-space-size=16"
         - "--max-old-space-size=300"
