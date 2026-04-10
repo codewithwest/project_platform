@@ -78,6 +78,12 @@ n8n:
       size: 8Gi
       annotations:
         helm.sh/resource-policy: keep
+    livenessProbe:
+      initialDelaySeconds: 120 # Give it 2 minutes to start up
+      periodSeconds: 15
+    readinessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 15
 
   worker:
     mode: queue
@@ -106,6 +112,12 @@ n8n:
           limits:
             cpu: 500m
             memory: 512Mi
+    livenessProbe:
+      initialDelaySeconds: 120 # Give it 2 minutes to start up
+      periodSeconds: 15
+    readinessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 15
     persistence:
       enabled: true
       volumeName: "n8n-worker-pv"
@@ -150,6 +162,12 @@ n8n:
         limits:
           cpu: 250m
           memory: 256Mi
+    livenessProbe:
+      initialDelaySeconds: 120 # Give it 2 minutes to start up
+      periodSeconds: 15
+    readinessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 15
 
   timezone: "Africa/Johannesburg"
   defaultLocale: en
