@@ -106,3 +106,20 @@ n8n:
     architecture: standalone
     auth:
       enabled: false # Ensure n8n-secret or redis secret has the password
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+      # Added this to ensure long-running workflows don't timeout
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+  hosts:
+    - host: n8n.westdynamics.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: n8n-tls-secret
+      hosts:
+        - n8n.westdynamics.io
