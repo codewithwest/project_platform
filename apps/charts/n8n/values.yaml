@@ -43,8 +43,8 @@ n8n:
 
   main:
     count: 1
-    extraSecretNamesForEnvFrom:
-      - n8n-secret
+    # extraSecretNamesForEnvFrom:
+    #   - n8n-secret
     extraEnvVars:
       N8N_RUNNERS_ENABLED: "true"
       N8N_RUNNERS_MODE: "external"
