@@ -46,14 +46,30 @@ n8n:
     extraSecretNamesForEnvFrom:
       - n8n-secret
     extraEnvVars:
-      N8N_RUNNERS_ENABLED: "true"
-      N8N_RUNNERS_MODE: "external"
-      N8N_RUNNERS_BROKER_LISTEN_ADDRESS: "0.0.0.0"
-      N8N_RUNNERS_BROKER_PORT: "5679"
-      N8N_NATIVE_PYTHON_RUNNER: "true"
-      EXECUTIONS_MODE: "queue"
-      QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
-      QUEUE_BULL_REDIS_PORT: "6379"
+    - name: N8N_RUNNERS_ENABLED
+      value: "true"
+    - name: N8N_RUNNERS_MODE
+      value: "external"
+    - name: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
+      value: "0.0.0.0"
+    - name: N8N_RUNNERS_BROKER_PORT
+      value: "5679"
+    - name: N8N_NATIVE_PYTHON_RUNNER
+      value: "true"
+
+    - name: EXECUTIONS_MODE
+      value: "queue"
+    - name: QUEUE_BULL_REDIS_HOST
+      value: "n8n-redis-master"
+    - name: QUEUE_BULL_REDIS_PORT
+      value: "6379"
+
+    # 🔥 THIS is the missing link
+    - name: N8N_RUNNERS_AUTH_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: n8n-secret
+          key: N8N_ENCRYPTION_KEY
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
@@ -147,29 +163,16 @@ n8n:
   existingEncryptionKeySecret: n8n-secret
 
   taskRunners:
-    enabled: true
-    
-    authToken:
-      existingSecret: "n8n-secret"
-      existingSecretKey: "N8N_ENCRYPTION_KEY"   # 👈 use this key
-
+    mode: external
+    taskTimeout: 60
+    taskHeartbeatInterval: 30
+    maxConcurrency: 2
     broker:
-      listenAddress: "0.0.0.0"
+      address: "0.0.0.0"
       port: 5679
-
-    launcher:
-      logLevel: info
+    external:
       autoShutdownTimeout: 15
-
-    nativePythonRunner: true
-
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
+      port: 5680
 
   timezone: "Africa/Johannesburg"
   defaultLocale: en
