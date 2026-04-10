@@ -54,6 +54,7 @@ n8n:
       EXECUTIONS_MODE: "queue"
       QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
       QUEUE_BULL_REDIS_PORT: "6379"
+      N8N_RUNNERS_AUTH_TOKEN: "$N8N_ENCRYPTION_KEY"
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
