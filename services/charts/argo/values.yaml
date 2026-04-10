@@ -123,11 +123,11 @@ controller:
   # -- Resource allocation (Requests and Limits)
   resources:
     requests:
-      cpu: "50m"
-      memory: "256Mi"
-    limits:
-      cpu: "250m"
+      cpu: "100m"
       memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
 
   # Share process namespace to allow sidecar containers to interact with processes in other containers in the same pod
   shareProcessNamespace: false
