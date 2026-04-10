@@ -148,8 +148,17 @@ n8n:
       address: "0.0.0.0"
       port: 5679
     external:
-      mainNodeAuthToken: ""
-      workerNodeAuthToken: ""
+      # Map these to your secret key so the Helm chart injects them correctly
+      mainNodeAuthToken: 
+        valueFrom:
+          secretKeyRef:
+            name: n8n-secret
+            key: N8N_ENCRYPTION_KEY
+      workerNodeAuthToken: 
+        valueFrom:
+          secretKeyRef:
+            name: n8n-secret
+            key: N8N_ENCRYPTION_KEY
       autoShutdownTimeout: 15
       port: 5680
       nodeOptions:
