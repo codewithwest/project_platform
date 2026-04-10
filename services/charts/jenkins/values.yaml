@@ -616,7 +616,7 @@ controller:
       # -- The scheme to use when connecting to the Jenkins configuration as code endpoint
       scheme: http
       # -- Skip TLS verification when connecting to the Jenkins configuration as code endpoint
-      skipTlsVerify: false
+      skipTlsVerify: true
 
       # -- How many connection-related errors to retry on
       reqRetryConnect: 10
