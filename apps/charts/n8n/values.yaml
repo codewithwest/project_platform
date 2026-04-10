@@ -151,14 +151,18 @@ n8n:
     taskTimeout: 60
     taskHeartbeatInterval: 30
     maxConcurrency: 2
+    enabled: true 
+    existingSecret: "n8n-secret"
+    authTokenKey: "N8N_ENCRYPTION_KEY"
     broker:
       address: "0.0.0.0"
       port: 5679
     external:
       # Schema-compliant location for these keys:
-      enabled: true 
-      existingSecret: "n8n-secret"
-      authTokenKey: "N8N_ENCRYPTION_KEY"
+      mainNodeAuthToken: ""
+      # -- The auth token for the worker node
+      workerNodeAuthToken: ""
+      # -- The auto shutdown timeout for the external task runner in seconds      
       
       autoShutdownTimeout: 15
       port: 5680
