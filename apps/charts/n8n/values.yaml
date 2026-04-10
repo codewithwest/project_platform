@@ -151,9 +151,7 @@ n8n:
     taskTimeout: 60
     taskHeartbeatInterval: 30
     maxConcurrency: 2
-    enabled: true 
     existingSecret: "n8n-secret"
-    authTokenKey: "N8N_ENCRYPTION_KEY"
     broker:
       address: "0.0.0.0"
       port: 5679
