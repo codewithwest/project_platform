@@ -54,7 +54,6 @@ n8n:
       EXECUTIONS_MODE: "queue"
       QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
       QUEUE_BULL_REDIS_PORT: "6379"
-      # N8N_RUNNERS_AUTH_TOKEN: "$N8N_ENCRYPTION_KEY"
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
@@ -148,39 +147,27 @@ n8n:
   existingEncryptionKeySecret: n8n-secret
 
   taskRunners:
-    enabled: true
-    
-    # This section maps your existing secret to the chart's runner logic
-    # authToken:
-    #   existingSecret: "n8n-secret"
-    #   existingSecretKey: "N8N_RUNNERS_AUTH_TOKEN"
-
+    mode: external
+    taskTimeout: 60
+    taskHeartbeatInterval: 30
+    maxConcurrency: 2
     broker:
-      listenAddress: "0.0.0.0"
+      address: "127.0.0.1"
       port: 5679
-
-    launcher:
-      logLevel: info
+    external:
+      # We stripped 'enabled' and 'authToken' because the schema flagged them
       autoShutdownTimeout: 15
-
-    # This is great for your AI orchestration/local agents
-    nativePythonRunner: true
-
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
-
-# 3. Clean up the main block
-main:
-  # REMOVE N8N_RUNNERS_AUTH_TOKEN from extraEnvVars here 
-  # to stop the "Invalid value" collision.
-  extraEnvVars:
-    N8N_RUNNERS_ENABLED: "true"
-    N8N_RUNNERS_MODE: "external"
+      port: 5680
+      nodeOptions:
+        - "--max-semi-space-size=16"
+        - "--max-old-space-size=300"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 32Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
 
   timezone: "Africa/Johannesburg"
   defaultLocale: en
