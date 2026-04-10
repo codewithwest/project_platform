@@ -15,7 +15,15 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "ginger.fullname" . }}-chroma-pvc
+  name: {{ include "ginger.fullname" . }}-valkey-pvc
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.valkey.persistence.size }}
   labels:
     {{- include "ginger.labels" . | nindent 4 }}
 spec:

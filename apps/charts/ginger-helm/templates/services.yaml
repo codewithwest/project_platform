@@ -35,7 +35,19 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "ginger.fullname" . }}-chromadb
+  name: {{ include "ginger.fullname" . }}-valkey
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+      name: redis
+  selector:
+    {{- include "ginger.selectorLabels" . | nindent 6 }}
+    component: valkey
   labels:
     {{- include "ginger.labels" . | nindent 4 }}
 spec:

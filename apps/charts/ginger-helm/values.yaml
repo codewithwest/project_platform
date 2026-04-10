@@ -35,15 +35,12 @@ litellm:
             model: gpt-3.5-turbo
             api_key: "os.environ/LITELLM_API_KEY"
 
-# Redis (Bitnami)
-redis:
-  architecture: standalone
-  auth:
-    enabled: false
-  master:
-    persistence:
-      enabled: true
-      size: 8Gi
+# Valkey (Redis drop-in replacement)
+valkey:
+  image: valkey/valkey:latest
+  replicas: 1
+  persistence:
+    size: 1Gi
 
 # ChromaDB
 chromadb:

@@ -137,3 +137,34 @@ spec:
         - name: chroma-data
           persistentVolumeClaim:
             claimName: {{ include "ginger.fullname" . }}-chroma-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ginger.fullname" . }}-valkey
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.valkey.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ginger.selectorLabels" . | nindent 6 }}
+      component: valkey
+  template:
+    metadata:
+      labels:
+        {{- include "ginger.selectorLabels" . | nindent 8 }}
+        component: valkey
+    spec:
+      containers:
+        - name: valkey
+          image: {{ .Values.valkey.image }}
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: valkey-data
+              mountPath: /data
+      volumes:
+        - name: valkey-data
+          persistentVolumeClaim:
+            claimName: {{ include "ginger.fullname" . }}-valkey-pvc
