@@ -92,29 +92,35 @@ n8n:
       labels: {}
 
   worker:
-    # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
-    mode: queue
-    concurrency: 5
-    count: 1
-    allNodes: false
-    autoscaling:
-      enabled: false
-      minReplicas: 1
-      maxReplicas: 2
-
-    persistence:
-      enabled: true
-      volumeName: "n8n-worker-pv"
-      existingClaim: ""
-      storageClass: "microk8s-hostpath"
-      mountPath: "/home/node/.n8n"
-      accessMode: ReadWriteOnce
-      size: 8Gi
-      annotations:
-        helm.sh/resource-policy: keep
-      labels: {}
-    extraSecretNamesForEnvFrom:
-      - n8n-secret
+      mode: queue
+      concurrency: 5
+      count: 1
+      allNodes: false
+      autoscaling:
+        enabled: false
+        minReplicas: 1
+        maxReplicas: 2
+      extraEnvVars:
+        N8N_RUNNERS_ENABLED: "true"
+        N8N_RUNNERS_MODE: "external"
+        N8N_RUNNERS_AUTH_TOKEN: 
+          valueFrom:
+            secretKeyRef:
+              name: n8n-secret
+              key: N8N_ENCRYPTION_KEY
+      persistence:
+        enabled: true
+        volumeName: "n8n-worker-pv"
+        existingClaim: ""
+        storageClass: "microk8s-hostpath"
+        mountPath: "/home/node/.n8n"
+        accessMode: ReadWriteOnce
+        size: 8Gi
+        annotations:
+          helm.sh/resource-policy: keep
+        labels: {}
+      extraSecretNamesForEnvFrom:
+        - n8n-secret
 
   existingEncryptionKeySecret: n8n-secret
   webhook:
