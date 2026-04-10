@@ -1,39 +1,60 @@
 n8n:
-  # 1. Global config (N8N_ prefix added automatically by chart)
-  config:
-    NATIVE_PYTHON_RUNNER: "true"
-    LISTEN_ADDRESS: "0.0.0.0"
+  image:
+    repository: n8nio/n8n
+    pullPolicy: IfNotPresent
+    tag: stable
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
 
-  timezone: "Africa/Johannesburg"
-  defaultLocale: en
-
-  # 2. Database & Redis
-  db:
-    type: postgresdb
-
-  externalPostgresql:
-    host: postgres-postgresql.storage.svc.cluster.local
-    port: 5432
-    username: n8n
-    database: n8n
-    existingSecret: n8n-secret # Must contain key: postgres-password
-
-  redis:
+  service:
     enabled: true
-    auth:
-      enabled: true
+    type: ClusterIP
+    port: 5678
 
-  # 3. Main Node
+  nodes:
+    builtin:
+      enabled: false
+      modules: []
+    external:
+      allowAll: false
+      reinstallMissingPackages: false
+      packages: []
+    initContainer:
+      image:
+        repository: node
+        tag: "22-alpine"
+        pullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
+
+  db:
+    tablePrefix: ""
+    type: postgresdb
+    logging:
+      enabled: false
+      options: error
+      maxQueryExecutionTime: 0
+
   main:
     count: 1
     extraSecretNamesForEnvFrom:
       - n8n-secret
     extraEnvVars:
-      - name: N8N_RUNNERS_AUTH_TOKEN
-        valueFrom:
-          secretKeyRef:
-            name: n8n-secret
-            key: N8N_ENCRYPTION_KEY
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_MODE: "external"
+      N8N_RUNNERS_BROKER_LISTEN_ADDRESS: "0.0.0.0"
+      N8N_RUNNERS_BROKER_PORT: "5679"
+      N8N_NATIVE_PYTHON_RUNNER: "true"
+      EXECUTIONS_MODE: "queue"
+      QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
+      QUEUE_BULL_REDIS_PORT: "6379"
+
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
@@ -44,44 +65,107 @@ n8n:
             valueFrom:
               secretKeyRef:
                 name: n8n-secret
-                key: N8N_ENCRYPTION_KEY
+                key: N8N_RUNNERS_AUTH_TOKEN
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
     persistence:
       enabled: true
+      volumeName: "n8n-main-pv"
       storageClass: "microk8s-hostpath"
+      mountPath: "/home/node/.n8n"
+      accessMode: ReadWriteOnce
       size: 8Gi
+      annotations:
+        helm.sh/resource-policy: keep
+    livenessProbe:
+      initialDelaySeconds: 120
+      periodSeconds: 15
+    readinessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 15
 
-  # 4. Worker Node
   worker:
     mode: queue
     count: 1
+    concurrency: 5
     extraSecretNamesForEnvFrom:
       - n8n-secret
     extraEnvVars:
-      - name: N8N_RUNNERS_AUTH_TOKEN
-        valueFrom:
-          secretKeyRef:
-            name: n8n-secret
-            key: N8N_ENCRYPTION_KEY
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_MODE: "external"
+      N8N_RUNNERS_BROKER_LISTEN_ADDRESS: "0.0.0.0"
+      N8N_RUNNERS_BROKER_PORT: "5679"
+      N8N_NATIVE_PYTHON_RUNNER: "true"
+      EXECUTIONS_MODE: "queue"
+      QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
+      QUEUE_BULL_REDIS_PORT: "6379"
+
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
         env:
           - name: N8N_RUNNERS_TASK_BROKER_URI
-            # Use the actual service name created by the subchart
-            value: "http://n8n:5679" 
+            value: "http://localhost:5679"
           - name: N8N_RUNNERS_AUTH_TOKEN
             valueFrom:
               secretKeyRef:
                 name: n8n-secret
-                key: N8N_ENCRYPTION_KEY
+                key: N8N_RUNNERS_AUTH_TOKEN
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+    livenessProbe:
+      initialDelaySeconds: 120
+      periodSeconds: 15
+    readinessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 15
+    persistence:
+      enabled: true
+      volumeName: "n8n-worker-pv"
+      storageClass: "microk8s-hostpath"
+      mountPath: "/home/node/.n8n"
+      accessMode: ReadWriteOnce
+      size: 8Gi
+      annotations:
+        helm.sh/resource-policy: keep
 
-  # 5. Task Runner Mode
+  webhook:
+    mode: queue
+    count: 1
+    extraSecretNamesForEnvFrom:
+      - n8n-secret
+    extraEnvVars:
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_MODE: "external"
+
+  existingEncryptionKeySecret: n8n-secret
+
   taskRunners:
     mode: external
+    taskTimeout: 60
+    taskHeartbeatInterval: 30
+    maxConcurrency: 2
     broker:
+      address: "0.0.0.0"
       port: 5679
+    external:
+      autoShutdownTimeout: 15
+      port: 5680
 
-  # 6. Ingress
+  timezone: "Africa/Johannesburg"
+  defaultLocale: en
+  gracefulShutdownTimeout: 30
+
   ingress:
     enabled: true
     className: nginx
@@ -96,3 +180,24 @@ n8n:
       - secretName: n8n-tls-secret
         hosts:
           - n8n.westdynamics.io
+
+  redis:
+    enabled: true
+    architecture: standalone
+    image:
+      repository: bitnamilegacy/redis
+    auth:
+      enabled: true
+    master:
+      service:
+        ports:
+          redis: 6379
+      persistence:
+        enabled: false
+
+  externalPostgresql:
+    host: postgres-postgresql.storage.svc.cluster.local
+    port: 5432
+    username: n8n
+    database: n8n
+    existingSecret: n8n-secret
