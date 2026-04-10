@@ -51,12 +51,20 @@ n8n:
       N8N_RUNNERS_BROKER_LISTEN_ADDRESS: "0.0.0.0"
       N8N_RUNNERS_BROKER_PORT: "5679"
       N8N_NATIVE_PYTHON_RUNNER: "true"
+      EXECUTIONS_MODE: "queue"
+      QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
+      QUEUE_BULL_REDIS_PORT: "6379"
+      N8N_RUNNERS_AUTH_TOKEN:
+        valueFrom:
+          secretKeyRef:
+            name: n8n-secret
+            key: N8N_ENCRYPTION_KEY
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
         env:
           - name: N8N_RUNNERS_TASK_BROKER_URI
-            value: "http://127.0.0.1:5679"
+            value: "http://localhost:5679"
           - name: N8N_RUNNERS_AUTH_TOKEN
             valueFrom:
               secretKeyRef:
@@ -94,12 +102,20 @@ n8n:
     extraEnvVars:
       N8N_RUNNERS_ENABLED: "true"
       N8N_RUNNERS_MODE: "external"
+      EXECUTIONS_MODE: "queue"
+      QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
+      QUEUE_BULL_REDIS_PORT: "6379"
+      N8N_RUNNERS_AUTH_TOKEN:
+        valueFrom:
+          secretKeyRef:
+            name: n8n-secret
+            key: N8N_ENCRYPTION_KEY
     extraContainers:
       - name: task-runner
-        image: n8nio/runners:stable
+        image: n8nio/runners:2.12.3
         env:
           - name: N8N_RUNNERS_TASK_BROKER_URI
-            value: "http://127.0.0.1:5679"
+            value: "http://localhost:5679"
           - name: N8N_RUNNERS_AUTH_TOKEN
             valueFrom:
               secretKeyRef:
