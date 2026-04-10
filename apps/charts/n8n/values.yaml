@@ -46,30 +46,18 @@ n8n:
     extraSecretNamesForEnvFrom:
       - n8n-secret
     extraEnvVars:
-    - name: N8N_RUNNERS_ENABLED
-      value: "true"
-    - name: N8N_RUNNERS_MODE
-      value: "external"
-    - name: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
-      value: "0.0.0.0"
-    - name: N8N_RUNNERS_BROKER_PORT
-      value: "5679"
-    - name: N8N_NATIVE_PYTHON_RUNNER
-      value: "true"
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_MODE: "external"
+      N8N_RUNNERS_BROKER_LISTEN_ADDRESS: "0.0.0.0"
+      N8N_RUNNERS_BROKER_PORT: "5679"
+      N8N_NATIVE_PYTHON_RUNNER: "true"
 
-    - name: EXECUTIONS_MODE
-      value: "queue"
-    - name: QUEUE_BULL_REDIS_HOST
-      value: "n8n-redis-master"
-    - name: QUEUE_BULL_REDIS_PORT
-      value: "6379"
+      EXECUTIONS_MODE: "queue"
+      QUEUE_BULL_REDIS_HOST: "n8n-redis-master"
+      QUEUE_BULL_REDIS_PORT: "6379"
 
-    # 🔥 THIS is the missing link
-    - name: N8N_RUNNERS_AUTH_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: n8n-secret
-          key: N8N_ENCRYPTION_KEY
+      # 👇 IMPORTANT
+      N8N_RUNNERS_AUTH_TOKEN: "{{ .Values.n8n.existingEncryptionKeySecret }}"
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
