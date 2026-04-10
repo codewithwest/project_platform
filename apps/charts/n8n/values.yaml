@@ -151,9 +151,9 @@ n8n:
     enabled: true
     
     # This section maps your existing secret to the chart's runner logic
-    authToken:
-      existingSecret: "n8n-secret"
-      existingSecretKey: "N8N_RUNNERS_AUTH_TOKEN"
+    # authToken:
+    #   existingSecret: "n8n-secret"
+    #   existingSecretKey: "N8N_RUNNERS_AUTH_TOKEN"
 
     broker:
       listenAddress: "0.0.0.0"
