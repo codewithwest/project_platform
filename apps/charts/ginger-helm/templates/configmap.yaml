@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ginger.fullname" . }}-config
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+data:
+  litellm-config.yaml: |
+{{ .Values.litellm.config.configYaml | indent 4 }}
+  # Add other config keys from the original configmap.yaml here
+  # Example:
+  # APP_ENV: "production"

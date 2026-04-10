@@ -1,0 +1,57 @@
+# Global settings
+global:
+  namespace: ginger-ai
+
+# Ginger Application Settings
+ginger:
+  image: ghcr.io/westdynamics/ginger:latest
+  tag: latest
+  replicas: 1
+  service:
+    port: 8007
+  storage:
+    modelsPvcName: ginger-models-pvc
+    modelsSize: 10Gi
+
+# Ginger Worker Settings
+worker:
+  image: ghcr.io/westdynamics/ginger:latest
+  tag: latest
+  replicas: 1
+  command: ["python", "src/infrastructure/queue/worker.py"]
+
+# LiteLLM Settings
+litellm:
+  image: ghcr.io/berriai/litellm:main-stable
+  tag: main-stable
+  replicas: 1
+  port: 4000
+  config:
+    # Add litellm-config.yaml content here or via a separate file
+    configYaml: |
+      model_list:
+        - model_name: gpt-3.5-turbo
+          litellm_params:
+            model: gpt-3.5-turbo
+            api_key: "os.environ/LITELLM_API_KEY"
+
+# Redis (Bitnami)
+redis:
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+# ChromaDB
+chromadb:
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# Secrets (Use --set or a separate secrets.yaml for production)
+secrets:
+  litellmDbUrl: ""
+  litellmApiKey: ""

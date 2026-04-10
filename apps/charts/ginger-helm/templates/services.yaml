@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ginger.fullname" . }}-app
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.ginger.service.port }}
+      targetPort: {{ .Values.ginger.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "ginger.selectorLabels" . | nindent 6 }}
+    component: app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ginger.fullname" . }}-litellm
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.litellm.port }}
+      targetPort: {{ .Values.litellm.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "ginger.selectorLabels" . | nindent 6 }}
+    component: litellm

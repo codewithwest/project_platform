@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ginger-config
+  namespace: ginger-ai
+data:
+  # LiteLLM Configuration
+  litellm-config.yaml: |
+    model_list:
+      - model_name: smart-hosted-pro
+        litellm_params:
+          model: ollama_chat/gemma4:31b-cloud
+          api_base: os.environ/PROXY_OLLAMA_BASE_URL
+          api_key: ""
+          fallback_model: local-minimax-m2.7-cloud
+    
+    router_settings:
+      enable_pre_call_checks: false
+      routing_strategy: simple-shuffle
+      num_retries: 3
+    
+    litellm_settings:
+      drop_params: true
+    
+    general_settings:
+      master_key: os.environ/LITELLM_MASTER_KEY
+
+  # Framework Environment (Non-Sensitive)
+  AI_MODEL_PROVIDER: "litellm"
+  AI_LOG_LEVEL: "INFO"
+  LITELLM_PROXY_URL: "http://ginger-litellm:4000"
+  CHROMA_HTTP_HOST: "ginger-chromadb"
+  CHROMA_HTTP_PORT: "8000"
+  REDIS_URL: "redis://ginger-redis:6379/0"
+  OLLAMA_BASE_URL: "http://host.docker.internal:11434" # Placeholder for cluster-local Ollama or external access
+  PROXY_OLLAMA_BASE_URL: "http://host.docker.internal:11434"
+  N8N_BASE_URL: "http://n8n.default.svc.cluster.local:5678" # Correct if n8n is in default namespace
+  FLASK_ENV: "production"
+  AI_PROJECT_ROOT: "/app"
+  AI_MODELS_DIR: "/app/models"

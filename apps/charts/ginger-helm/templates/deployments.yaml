@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ginger.fullname" . }}-app
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ginger.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ginger.selectorLabels" . | nindent 6 }}
+      component: app
+  template:
+    metadata:
+      labels:
+        {{- include "ginger.selectorLabels" . | nindent 8 }}
+        component: app
+    spec:
+      containers:
+        - name: framework
+          image: "{{ .Values.ginger.image }}:{{ .Values.ginger.tag }}"
+          ports:
+            - containerPort: {{ .Values.ginger.service.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "ginger.fullname" . }}-config
+            - secretRef:
+                name: {{ include "ginger.fullname" . }}-secrets
+          volumeMounts:
+            - name: models-data
+              mountPath: /app/models
+      volumes:
+        - name: models-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.ginger.storage.modelsPvcName }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ginger.fullname" . }}-worker
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ginger.selectorLabels" . | nindent 6 }}
+      component: worker
+  template:
+    metadata:
+      labels:
+        {{- include "ginger.selectorLabels" . | nindent 8 }}
+        component: worker
+    spec:
+      containers:
+        - name: worker
+          image: "{{ .Values.worker.image }}:{{ .Values.worker.tag }}"
+          command: {{ toJson .Values.worker.command }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "ginger.fullname" . }}-config
+            - secretRef:
+                name: {{ include "ginger.fullname" . }}-secrets
+          volumeMounts:
+            - name: models-data
+              mountPath: /app/models
+      volumes:
+        - name: models-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.ginger.storage.modelsPvcName }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ginger.fullname" . }}-litellm
+  labels:
+    {{- include "ginger.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.litellm.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ginger.selectorLabels" . | nindent 6 }}
+      component: litellm
+  template:
+    metadata:
+      labels:
+        {{- include "ginger.selectorLabels" . | nindent 8 }}
+        component: litellm
+    spec:
+      containers:
+        - name: litellm
+          image: "{{ .Values.litellm.image }}:{{ .Values.litellm.tag }}"
+          ports:
+            - containerPort: {{ .Values.litellm.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "ginger.fullname" . }}-config
+            - secretRef:
+                name: {{ include "ginger.fullname" . }}-secrets
+          command: ["--config", "/app/config.yaml", "--port", "{{ .Values.litellm.port }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config.yaml
+              subPath: litellm-config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "ginger.fullname" . }}-config
