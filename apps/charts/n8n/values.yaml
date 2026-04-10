@@ -58,7 +58,7 @@ n8n:
         valueFrom:
           secretKeyRef:
             name: n8n-secret
-            key: N8N_RUNNERS_AUTH_TOKEN
+            key: N8N_ENCRYPTION_KEY
     extraContainers:
       - name: task-runner
         image: n8nio/runners:2.12.3
@@ -69,7 +69,7 @@ n8n:
             valueFrom:
               secretKeyRef:
                 name: n8n-secret
-                key: N8N_RUNNERS_AUTH_TOKEN
+                key: N8N_ENCRYPTION_KEY
         resources:
           requests:
             cpu: 100m
