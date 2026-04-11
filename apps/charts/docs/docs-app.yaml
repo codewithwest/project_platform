@@ -2,12 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: docs
-  namespace: management
+  namespace: applications
 spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: management
+    namespace: applications
   source:
     repoURL: https://github.com/codewithwest/project_platform.git
     path: apps/charts/docs
