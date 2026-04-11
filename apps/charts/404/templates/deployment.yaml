@@ -30,6 +30,15 @@ spec:
               mountPath: /usr/share/nginx/html/404.html
               subPath: 404.html
             - name: html
+              mountPath: /usr/share/nginx/html/500.html
+              subPath: 500.html
+            - name: html
+              mountPath: /usr/share/nginx/html/502.html
+              subPath: 502.html
+            - name: html
+              mountPath: /usr/share/nginx/html/504.html
+              subPath: 504.html
+            - name: html
               mountPath: /usr/share/nginx/html/index.html
               subPath: 404.html
             - name: config
