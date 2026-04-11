@@ -1,5 +1,5 @@
 apiVersion: v2
-name: jenkins
+name: jenkins-wrapper
 version: 1.0.0
 dependencies:
   - name: jenkins

@@ -44,7 +44,7 @@ spec:
       chart: jenkins
       helm:
         valueFiles:
-          - $values/services/jenkins/values.yaml
+          - $values/services/charts/jenkins/values.yaml
 
     # Repo containing values.yaml
     - repoURL: https://github.com/codewithwest/project_platform.git
