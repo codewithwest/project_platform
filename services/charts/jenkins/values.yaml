@@ -584,7 +584,7 @@ jenkins:
           # -- Repository of the image that triggers the reload
           repository: kiwigrid/k8s-sidecar
           # -- Tag for the image that triggers the reload
-          tag: 2.5.0
+          tag: 1.27.6
         imagePullPolicy: IfNotPresent
         # -- Port for sidecar health probes
         healthPort: 8060
@@ -630,7 +630,9 @@ jenkins:
         envFrom: []
         # -- Environment variables for the Jenkins Config as Code auto-reload container
         env:
-          # Required for MicroK8s: internal CA cert lacks keyUsage extension (Python 3.14 strict SSL)
+          # Fix for MicroK8s: Python 3.14+ strict SSL rejects CA cert without keyUsage extension
+          - name: PYTHONHTTPSVERIFY
+            value: "0"
           - name: REQ_SKIP_TLS_VERIFY
             value: "true"
   
