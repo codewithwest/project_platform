@@ -619,7 +619,7 @@ jenkins:
         # -- The scheme to use when connecting to the Jenkins configuration as code endpoint
         scheme: http
         # -- Skip TLS verification when connecting to the Jenkins configuration as code endpoint
-        skipTlsVerify: false
+        skipTlsVerify: true
   
         # -- How many connection-related errors to retry on
         reqRetryConnect: 10
@@ -629,9 +629,10 @@ jenkins:
         # -- Environment variable sources for the Jenkins Config as Code auto-reload container
         envFrom: []
         # -- Environment variables for the Jenkins Config as Code auto-reload container
-        env: []
-        #   - name: REQ_TIMEOUT
-        #     value: "30"
+        env:
+          # Required for MicroK8s: internal CA cert lacks keyUsage extension (Python 3.14 strict SSL)
+          - name: REQ_SKIP_TLS_VERIFY
+            value: "true"
   
         # SSH port value can be set to any unused TCP port. The default, 1044, is a non-standard SSH port that has been chosen at random.
         # This is only used to reload JCasC config from the sidecar container running in the Jenkins controller pod.
