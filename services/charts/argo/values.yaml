@@ -13,7 +13,9 @@ argo:
 
   controller:
     name: application-controller
-    # High availability and resource settings can be added here
+    image:
+      repository: quay.io/argoproj/argocd
+      tag: "v2.10.4"
     resources:
       limits:
         cpu: 1000m
