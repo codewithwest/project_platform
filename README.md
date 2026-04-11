@@ -29,8 +29,8 @@ This is a documentation for the project platform, this is all the steps required
 - [Minikube](./docs/minikube-setup.md) or [Microk8s](./docs/microk8s.md)
 - [Helm Setup](./docs/helm.md)
 - [Tools](./docs/tools.md)
-- [Argo CD for Microk8s](./services/argo/microk8s.md) or [Argo CD for Minikube](./services/argo/minikube.md)
-- [Jenkins](./services/jenkins/microk8s.md)
+- [Argo CD for Microk8s](./services/charts/argo/microk8s.md) or [Argo CD for Minikube](./services/charts/argo/minikube.md)
+- [Jenkins](./services/charts/jenkins/readme.md)
 - [Custom 404 Setup](./docs/404-setup.md)
 
 ## Deployment reusables
@@ -190,3 +190,24 @@ alias restart-nginx="systemctl restart nginx"
 # Add this to your ~/.bashrc if you want to use the built-in helm
 alias helm='microk8s helm3'
 ```
+
+## Modern Installation Workflow
+
+Since this repository now uses **Wrapper Charts** to manage configurations and dependencies, the deployment process has been simplified:
+
+### 1. Build Dependencies
+Before running Helm for the first time or after a Chart.yaml update:
+```sh
+helm dependency build services/charts/<service-name>
+```
+
+### 2. Deploy/Upgrade
+Apply your `values.yaml` and configurations in one go:
+```sh
+helm upgrade <release-name> services/charts/<service-name> -n management --install
+```
+
+### 3. Key Services
+- **Argo CD**: [argo.westdynamics.io](https://argo.westdynamics.io)
+- **Jenkins**: [jenkins.westdynamics.io](https://jenkins.westdynamics.io)
+- **Error Handler**: Automated via Argo CD ExtraObjects

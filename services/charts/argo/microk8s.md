@@ -1,70 +1,45 @@
-# Install argo cd on microk8s
+# Install Argo CD on MicroK8s (Wrapper Chart)
 
-Back to [Readme](../../README.md)
+This repository uses a **Wrapper Chart** located in `services/charts/argo` to manage the official Argo CD installation along with local configurations (like Nginx Ingress and ConfigMap patches).
 
-## 1. Add repository
-
-```sh
-helm repo add argo https://argoproj.github.io/argo-helm
-```
-
-## 2. Update your local Helm chart repository cache
+## 1. Prepare Dependencies
+You must download the official `argo-cd` subchart before installing:
 
 ```sh
-helm repo update
+helm dependency build services/charts/argo
 ```
 
-## 3. Install Argo CD
+## 2. Install/Upgrade Argo CD
+Deploy the wrapper chart with your custom `values.yaml`:
 
 ```sh
-helm install argo argo/argo-cd --n management --create-namespace
+# This installs/updates the 'argocd' release in the 'management' namespace
+helm upgrade argocd services/charts/argo -n management --install --create-namespace
 ```
 
-## 4. Verify the installation
+## 3. Verify the installation
+Check that all pods are running and healthy:
 
 ```sh
-kubectl get pods -n argocd
+kubectl get pods -n management | grep argo
 ```
 
-## 5. Expose argo cd
+## 4. Automation Features
+Our `values.yaml` in the wrapper chart handles the following automatically:
+- **Insecure mode**: `server.insecure: true` for use behind Ingress.
+- **Resource Limits**: CPU/Memory limits for the controller.
+- **Nginx Integration**: Patching the global Ingress ConfigMap via `extraObjects`.
+- **Ingress**: Managed ingress for `argo.westdynamics.io`.
 
+## 5. Access Argo CD
+
+### Initial Admin Password
 ```sh
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+kubectl -n management get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 
-## 6. verify the nodeport
+### URL
+Access via the configured ingress: [https://argo.westdynamics.io](https://argo.westdynamics.io)
 
-```sh
-kubectl get svc argocd-server -n argocd
-```
-
-
-## 7.Access argo cd
-
-```sh
-https://<vm-ip>:<nodeport>
-```
-
-## 8. Get the Argo CD admin password
-
-```sh
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-```
-
-## 9. Access the Argo CD UI
-
-```sh
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-```
-
-## 10. Login to the Argo CD UI
-
-```sh
-https://localhost:8080
-```
-
-## 11. Logout from the Argo CD UI
-
-```sh
-kubectl -n argocd delete secret argocd-initial-admin-secret
-```
+---
+Back to [Main README](../../../README.md)

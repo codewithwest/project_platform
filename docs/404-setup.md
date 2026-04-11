@@ -9,17 +9,28 @@ This application provides a beautiful, high-definition "Lost in Space" 404 error
    - Namespace: `management`
    - Technical Name: `error-404`
 
-2. **Configure MicroK8s Ingress**:
-   Find your Ingress ConfigMap name:
-   ```bash
-   kubectl get configmap -A | grep -i "ingress\|nginx"
+2. **Automated Configuration (Preferred)**:
+   The Nginx Ingress integration is now fully automated via the Argo CD wrapper chart. Simply ensure the following block exists in `services/charts/argo/values.yaml`:
+   ```yaml
+   argo:
+     server:
+       extraObjects:
+         - apiVersion: v1
+           kind: ConfigMap
+           metadata:
+             name: nginx-load-balancer-microk8s-conf
+             namespace: ingress
+           data:
+             default-backend-service: "management/error-404:80"
+             custom-http-errors: "404,500,502,503,504"
    ```
 
-   Apply the patch (replace `<NAME>` and `<NAMESPACE>`):
+3. **Manual Patch (Legacy/Troubleshooting)**:
+   If you need to manually force the configuration:
    ```bash
-   kubectl patch configmap <NAME> -n <NAMESPACE> \
+   kubectl patch configmap nginx-load-balancer-microk8s-conf -n ingress \
      --type merge \
-     -p '{"data": {"default-backend": "management/error-404", "custom-http-errors": "404,500,502,503,504"}}'
+     -p '{"data": {"default-backend-service": "management/error-404:80", "custom-http-errors": "404,500,502,503,504"}}'
    ```
 
 ## Design

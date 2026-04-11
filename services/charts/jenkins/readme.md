@@ -1,28 +1,30 @@
-# Jenkins in argocd
+# Jenkins Deployment Guide
 
-#### since this uses multi repo sources then you cannot create via ui
+This repository uses a **Wrapper Chart** approach to manage Jenkins. The configuration is located in `services/charts/jenkins`.
 
-## add helm repo
+## 1. Installation (via Helm)
 
+You can deploy Jenkins directly using the wrapper chart. This is the simplest way to apply local configurations (like resource limits and ingress).
+
+### Build Dependencies
 ```sh
-helm repo add jenkins https://charts.jenkins.io
+helm dependency build services/charts/jenkins
 ```
 
-## update helm
-
+### Install/Upgrade
 ```sh
-helm repo update
+# Installs the 'jenkins' release in the 'management' namespace
+helm upgrade jenkins services/charts/jenkins -n management --install
 ```
 
-## install jenkins
+---
 
-### create file you will use to create the jenkins app
+## 2. Installation (via Argo CD)
 
-```sh
-nano jenkins-app.yaml
-```
+If you prefer to manage Jenkins using GitOps, use a **Multi-Source Application**.
 
-### add contents of file services/jenkins/app.yaml
+### Create the Application Manifest
+Create a file named `jenkins-app.yaml`:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -32,25 +34,22 @@ metadata:
   namespace: management
 spec:
   project: default
-
   destination:
     server: https://kubernetes.default.svc
     namespace: management
-
   sources:
-    # Jenkins Helm chart
+    # 1. Official Jenkins Helm chart
     - repoURL: https://charts.jenkins.io
-      targetRevision: 5.8.110
+      targetRevision: 5.9.12  # Matching the version in Chart.yaml
       chart: jenkins
       helm:
         valueFiles:
           - $values/services/charts/jenkins/values.yaml
 
-    # Repo containing values.yaml
+    # 2. This repository (containing the values.yaml)
     - repoURL: https://github.com/codewithwest/project_platform.git
       targetRevision: dev
       ref: values
-
   syncPolicy:
     automated:
       prune: true
@@ -59,29 +58,22 @@ spec:
       - CreateNamespace=true
 ```
 
-### apply jenkins app
-
+### Apply the Application
 ```sh
 kubectl apply -f jenkins-app.yaml
 ```
 
-### verify jenkins app created or check argo-cd ui
+---
 
-```sh
-kubectl get all -n management
-```
+## 3. Accessing Jenkins
 
-## Access jenkins
-
-- Get jenkins admin password
-
+### Get Admin Password
 ```sh
 kubectl get secret --namespace=management jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode
 ```
 
-- Access jenkins UI https://<hostName>:<port>/
+### URL
+Access via Ingress: [https://jenkins.westdynamics.io](https://jenkins.westdynamics.io)
 
-Add url to jenkins system configuration
-
-- Jenkins URL: http://<hostName>:<port>/
-- or use svc url `http://jenkins.jenkins.svc.cluster.local:8080/`
+> [!NOTE]
+> Since this is a subchart, all configurations in `values.yaml` must be nested under a root `jenkins:` key.
