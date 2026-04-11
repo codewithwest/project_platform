@@ -28,7 +28,6 @@ podTemplate(
             sh '''
                 git clone https://github.com/codewithwest/project_platform.git
                 cd project_platform
-                git checkout dev
 
                 ls -la
             '''
