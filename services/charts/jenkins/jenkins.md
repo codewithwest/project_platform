@@ -115,10 +115,10 @@ pipeline {
 ### Remove jenkins
 
 ```sh
-kubectl delete statefulset jenkins -n management --force --grace-period=0
-kubectl delete pvc jenkins -n management --force --grace-period=0
-kubectl delete svc jenkins jenkins-agent -n management
-kubectl delete sa jenkins -n management
-kubectl delete cm -n management | grep jenkins
-kubectl delete secret jenkins -n management
+    kubectl delete statefulset jenkins -n management --force --grace-period=0
+    kubectl delete pvc jenkins -n management --force --grace-period=0
+    kubectl delete svc jenkins jenkins-agent -n management
+    kubectl delete sa jenkins -n management
+    kubectl delete cm -n management | grep jenkins
+    kubectl delete secret jenkins -n management
 ```
