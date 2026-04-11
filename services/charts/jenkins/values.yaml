@@ -126,8 +126,8 @@ controller:
       cpu: "50m"
       memory: "256Mi"
     limits:
-      cpu: "500m"
-      memory: "1024Mi"
+      cpu: "2000m"
+      memory: "4096Mi"
 
   # Share process namespace to allow sidecar containers to interact with processes in other containers in the same pod
   shareProcessNamespace: false
@@ -576,18 +576,19 @@ controller:
       # Auto-reload uses the http://<jenkins_url>/reload-configuration-as-code endpoint to reapply config when changes to
       # the configScripts are detected.
       # -- Enable Jenkins Config as Code auto-reload
-      enabled: false
+      enabled: true
       image:
         # -- Registry for the image that triggers the reload
         registry: docker.io
         # -- Repository of the image that triggers the reload
         repository: kiwigrid/k8s-sidecar
         # -- Tag for the image that triggers the reload
-        tag: 2.6.0
+        tag: 2.5.0
       imagePullPolicy: IfNotPresent
       # -- Port for sidecar health probes
       healthPort: 8060
-      resources: {}
+      resources:
+        {}
         #   limits:
         #     cpu: 100m
         #     memory: 100Mi
@@ -595,7 +596,8 @@ controller:
         #     cpu: 50m
         #     memory: 50Mi
       # -- Enables additional volume mounts for the config auto-reload container
-      additionalVolumeMounts: []
+      additionalVolumeMounts:
+        []
         #   - name: auto-reload-config
         #     mountPath: /var/config/logger
         #   - name: auto-reload-logs
@@ -616,7 +618,7 @@ controller:
       # -- The scheme to use when connecting to the Jenkins configuration as code endpoint
       scheme: http
       # -- Skip TLS verification when connecting to the Jenkins configuration as code endpoint
-      skipTlsVerify: true
+      skipTlsVerify: false
 
       # -- How many connection-related errors to retry on
       reqRetryConnect: 10
@@ -626,11 +628,7 @@ controller:
       # -- Environment variable sources for the Jenkins Config as Code auto-reload container
       envFrom: []
       # -- Environment variables for the Jenkins Config as Code auto-reload container
-      env:
-        - name: PYTHONHTTPSVERIFY
-          value: "0"
-        - name: REQUESTS_CA_BUNDLE
-          value: ""
+      env: []
       #   - name: REQ_TIMEOUT
       #     value: "30"
 
@@ -738,9 +736,8 @@ controller:
     # -- Ingress annotations
     annotations:
       kubernetes.io/ingress.class: nginx
+      kubernetes.io/tls-acme: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-      nginx.ingress.kubernetes.io/custom-http-errors: "404,502,503,504"
-      nginx.ingress.kubernetes.io/default-backend: "management/error-404"
     # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
     # ingressClassName: nginx
@@ -759,6 +756,9 @@ controller:
       - secretName: jenkins-tls-secret
         hosts:
           - jenkins.westdynamics.io
+    # - secretName: jenkins.cluster.local
+    #   hosts:
+    #     - jenkins.cluster.local
 
   # often you want to have your controller all locked down and private,
   # but you still want to get webhooks from your SCM
@@ -771,7 +771,7 @@ controller:
     paths: []
     # For Kubernetes v1.14+, use 'networking.k8s.io/v1beta1'
     # For Kubernetes v1.19+, use 'networking.k8s.io/v1'
-    apiVersion: "networking.k8s.io/v1"
+    apiVersion: "extensions/v1beta1"
     labels: {}
     annotations: {}
     # kubernetes.io/ingress.class: nginx
@@ -793,7 +793,7 @@ controller:
     # -- Enables backendconfig
     enabled: false
     # -- backendconfig API version
-    apiVersion: "networking.k8s.io/v1"
+    apiVersion: "extensions/v1beta1"
     # -- backendconfig name
     name:
     # -- backendconfig labels
@@ -1305,7 +1305,7 @@ persistence:
   # If undefined (the default) or set to null, no storageClassName spec is
   #   set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack)
   # -- Storage class for the PVC
-  storageClass: "microk8s-hostpath"
+  storageClass:
   # -- Annotations for the PVC
   annotations: {}
   # -- Labels for the PVC
@@ -1349,13 +1349,15 @@ networkPolicy:
     # -- A map of labels (keys/values) that agent pods must have to be able to connect to controller
     podLabels: {}
     # -- A map of labels (keys/values) that agents namespaces must have to be able to connect to controller
-    namespaceLabels: {}
+    namespaceLabels:
+      {}
       # project: myproject
   externalAgents:
     # -- The IP range from which external agents are allowed to connect to controller, i.e., 172.17.0.0/16
     ipCIDR:
     # -- A list of IP sub-ranges to be excluded from the allowlisted IP range
-    except: []
+    except:
+      []
       # - 172.17.1.0/24
 
 ## Install Default RBAC roles and bindings
