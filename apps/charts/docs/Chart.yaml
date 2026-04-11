@@ -1,0 +1,6 @@
+apiVersion: v2
+name: docs
+description: A live documentation portal using Docsify and git-sync
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,0 +1,32 @@
+repo:
+  url: "https://github.com/codewithwest/project_platform.git"
+  branch: "dev"
+  # Set to true if repo is private and provide secretName
+  private: false
+  secretName: ""
+
+replicaCount: 1
+
+image:
+  nginx: "nginx:alpine"
+  gitsync: "registry.k8s.io/git-sync/git-sync:v4.2.3"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  host: docs.westdynamics.io
+  tls:
+    enabled: true
+    secretName: docs-tls-secret
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
