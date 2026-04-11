@@ -29,3 +29,13 @@ argo:
     name: server
     service:
       type: ClusterIP
+    # Automate the Ingress ConfigMap patch
+    extraObjects:
+      - apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: nginx-load-balancer-microk8s-conf
+          namespace: ingress
+        data:
+          default-backend-service: "management/error-404:80"
+          custom-http-errors: "404,500,502,503,504"
