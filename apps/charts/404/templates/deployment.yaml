@@ -36,6 +36,9 @@ spec:
               mountPath: /usr/share/nginx/html/502.html
               subPath: 502.html
             - name: html
+              mountPath: /usr/share/nginx/html/503.html
+              subPath: 503.html
+            - name: html
               mountPath: /usr/share/nginx/html/504.html
               subPath: 504.html
             - name: html

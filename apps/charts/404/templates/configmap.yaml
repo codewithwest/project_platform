@@ -10,6 +10,8 @@ data:
 {{ .Values.html.error500 | indent 4 }}
   502.html: |
 {{ .Values.html.error502 | indent 4 }}
+  503.html: |
+{{ .Values.html.error503 | indent 4 }}
   504.html: |
 {{ .Values.html.error504 | indent 4 }}
   default.conf: |
