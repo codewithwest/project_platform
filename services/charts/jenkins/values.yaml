@@ -423,6 +423,13 @@ jenkins:
       - workflow-aggregator:608.v67378e9d3db_1
       - git:5.10.1
       - configuration-as-code:2061.vc08919f7fc37
+      - blueocean:latest
+      - docker-workflow:latest
+      - junit:latest
+      - apache-httpcomponents-client-4-api:latest
+      - credentials:latest
+      - branch-api:latest
+      - theme-manager:latest
   
     # If set to false, Jenkins will download the minimum required version of all dependencies.
     # -- Download the minimum required version or latest version of all dependencies
