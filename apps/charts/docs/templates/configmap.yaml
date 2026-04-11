@@ -32,8 +32,8 @@ data:
           subMaxLevel: 2,
           auto2top: true,
           search: 'auto',
-          // Point to the git-sync'd repository folder
-          basePath: '/repo/',
+          // Point to the git-sync'd repository folder (the volume is mounted at /repo and the symlink name is 'repo')
+          basePath: '/repo/repo/',
           homepage: 'README.md'
         }
       </script>
