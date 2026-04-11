@@ -32,9 +32,8 @@ data:
           subMaxLevel: 2,
           auto2top: true,
           search: 'auto',
-          // This ensures Docsify looks for files relative to the root
-          basePath: './',
-          // Specify the README.md as the homepage
+          // Point to the git-sync'd repository folder
+          basePath: '/repo/',
           homepage: 'README.md'
         }
       </script>
