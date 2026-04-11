@@ -37,6 +37,7 @@ argo:
       annotations:
         nginx.ingress.kubernetes.io/ssl-redirect: "true"
         nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+      hostname: argo.westdynamics.io
       hosts:
         - argo.westdynamics.io
       tls:
