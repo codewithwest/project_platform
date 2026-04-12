@@ -109,6 +109,10 @@ n8n:
         env:
           - name: N8N_RUNNERS_TASK_BROKER_URI
             value: "http://127.0.0.1:5679"
+          - name: N8N_RUNNERS_STDLIB_ALLOW
+            value: "*"
+          - name: N8N_RUNNERS_EXTERNAL_ALLOW
+            value: "pymongo"
           - name: N8N_RUNNERS_AUTH_TOKEN
             valueFrom:
               secretKeyRef:
