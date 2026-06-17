@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: valkey-ingress
+  namespace: management # Ensure this matches the namespace your Valkey pod is deployed to
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+spec:
+  ingressClassName: nginx
+  tls:
+    - secretName: harbor-tls-secret
+      hosts:
+        - valkey.westdynamics.io
+  rules:
+    - host: valkey.westdynamics.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                # Based on your default values setup, the chart exposes port 6379 via a service named 'valkey'
+                # NOTE: If your ArgoCD application release name prefixes resources, 
+                # change this service name to match (e.g., 'management-valkey')
+                name: valkey 
+                port:
+                  number: 6379

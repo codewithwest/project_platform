@@ -1,67 +1,46 @@
 # ==========================================
 # Valkey (Redis Replacement) Deployment Setup
 # ==========================================
-valkey:
-  replicaCount: 1
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
 
-  # Explicitly setting the image parameters so the init containers inherit valid targets
-  image:
-    registry: "docker.io"
-    repository: valkey/valkey
-    tag: "7.2" # Pinning an explicit stable version tag instead of leaving it blank
-    pullPolicy: IfNotPresent
+image:
+  registry: "docker.io"
+  repository: valkey/valkey
+  tag: "7.2.4" # Pin a specific, valid image tag to resolve the initContainer loop
+  pullPolicy: IfNotPresent
 
-  clusterDomain: cluster.local
+# -- Enable authentication safely
+auth:
+  enabled: true
+  aclUsers:
+    default:
+      permissions: "~* &* +@all"
+      password: "ChooseASecurePassword123!"
 
-  # -- Authentication Configuration (Explicitly enabled with default user)
-  auth:
-    enabled: true
-    aclUsers:
-      default:
-        permissions: "~* &* +@all"
-        password: "ChooseASecurePassword123!" # Change this to a secure token string
+# -- Match your persistence to the correct dataStorage object structure from your chart
+dataStorage:
+  enabled: true
+  volumeName: "valkey-data"
+  requestedSize: "8Gi"
+  className: "microk8s-hostpath" # Directly mapping your local path volume engine
+  accessModes:
+    - ReadWriteOnce
+  keepPvc: true
 
-  # -- Ingress Setup mapping to your Nginx controller layout
-  # Note: The valkey chart expects this custom map structure to bind to the service
-  ingress:
-    enabled: true
-    className: "nginx"
-    annotations:
-      ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    hosts:
-      - host: valkey.westdynamics.io
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-    tls:
-      - secretName: harbor-tls-secret # Reusing your cluster TLS secret mapping
-        hosts:
-          - valkey.westdynamics.io
+# -- Resource configurations mapped to prevent OOM termination
+resources:
+  limits:
+    cpu: "1"
+    memory: "3Gi"
+  requests:
+    cpu: "250m"
+    memory: "1.5Gi"
 
-  # -- Low-level ConfigMap values for the engine
-  valkeyConfig: |
-    appendonly yes
-    appendfsync everysec
-    maxmemory 2gb
-    maxmemory-policy allkeys-lru
-
-  # -- Production Compute Allocations (Ensuring memory buffers don't cause OOMKills)
-  resources:
-    limits:
-      cpu: "1"
-      memory: "3Gi"
-    requests:
-      cpu: "250m"
-      memory: "1.5Gi"
-
-  # -- Data Storage Configuration tied to your MicroK8s Engine
-  dataStorage:
-    enabled: true
-    volumeName: "valkey-data"
-    requestedSize: "8Gi"
-    className: "microk8s-hostpath" # Matching your environment storage layout
-    accessModes:
-      - ReadWriteOnce
-    keepPvc: true # Retains your data states if the chart gets uninstalled or upgraded
+# -- Append database performance logic
+valkeyConfig: |
+  appendonly yes
+  appendfsync everysec
+  maxmemory 2gb
+  maxmemory-policy allkeys-lru
