@@ -1,12 +1,61 @@
-persistence:
-  enabled: true
-  size: 5Gi
-  storageClass: standard
+# Default values.yaml for ChromaDB
 
+chromadb:
+  # -- Set true to allow clearing out/wiping the index programmatically
+  allowReset: false
+
+  # -- Enables persistent storage. The Rust server (v1.0.0+) always writes to disk; 
+  # setting this false means your data is purely ephemeral to the Pod's lifecycle.
+  isPersistent: true
+
+  # -- The directory inside the container where Chroma writes its SQLite WAL and vectors
+  persistDirectory: "/data"
+
+  # -- Volume retention policy when the Helm chart is uninstalled. 
+  # CRITICAL: Default is Delete. Switch to "Retain" if you don't want a helm uninstall to wipe your data.
+  retentionPolicyOnDelete: "Delete"
+
+  # -- Custom configuration parameters required for modern versions (1.x+) of the database
+  extraConfig: {}
+
+# -- Container Image Settings
+image:
+  repository: "ghcr.io/chroma-core/chroma"
+  pullPolicy: "IfNotPresent"
+  # -- Overrides the image tag whose default is the chart's appVersion
+  tag: ""
+
+# -- Resource limits and allocations
+# Single-tenant Chroma deployments are memory and CPU intensive during indexing (HNSW graph construction)
 resources:
   requests:
-    cpu: 100m
-    memory: 256Mi
+    cpu: "100m"
+    memory: "1Gi"
   limits:
-    cpu: 200m
-    memory: 500Mi
+    cpu: "1"
+    memory: "2Gi"
+
+# -- Persistent Volume Claim configuration
+persistentVolume:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: "10Gi"
+  storageClass: "" # Leave blank to use your cluster's default storage class
+
+# -- Kubernetes Service Configuration
+service:
+  type: ClusterIP
+  port: 8000
+
+# -- Ingress Settings (Disabled by default)
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chromadb.westdynamics.io
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
