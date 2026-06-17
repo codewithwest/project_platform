@@ -38,15 +38,19 @@ service:
   port: 4000
 
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
   hosts:
     - host: llm-proxy.westdynamics.io
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+  tls:
+    - secretName: llm-proxy-tls-secret
+      hosts:
+        - llm-proxy.westdynamics.io
 
 resources: {}
 

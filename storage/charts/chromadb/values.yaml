@@ -32,15 +32,19 @@ service:
   nodePort: null
 
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
   hosts:
     - host: chromadb.westdynamics.io
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+  tls:
+    - secretName: chromadb-tls-secret
+      hosts:
+        - chromadb.westdynamics.io
 
 resources:
   requests:
