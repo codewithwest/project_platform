@@ -1,0 +1,12 @@
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: standard
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 200m
+    memory: 500Mi

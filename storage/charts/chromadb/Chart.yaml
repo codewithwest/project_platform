@@ -1,0 +1,7 @@
+apiVersion: v2
+name: chromadb
+version: 1.0.0
+dependencies:
+  - name: chromadb
+    version: 0.1.0
+    repository: "https://chroma-core.github.io/chroma-helm"
