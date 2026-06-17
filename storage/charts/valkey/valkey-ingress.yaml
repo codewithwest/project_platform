@@ -11,7 +11,7 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - secretName: harbor-tls-secret
+    - secretName: valkey-tls-secret
       hosts:
         - valkey.westdynamics.io
   rules:
