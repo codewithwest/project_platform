@@ -6,7 +6,7 @@ qdrant:
 
   image:
     repository: docker.io/qdrant/qdrant
-    tag: "v1.18.2" # Pinning to a specific verified stable version
+    tag: "v1.18.2"
     pullPolicy: IfNotPresent
 
   # -- Expose Qdrant via Nginx Ingress Controller
@@ -15,7 +15,6 @@ qdrant:
     className: "nginx"
     annotations:
       ingress.kubernetes.io/ssl-redirect: "true"
-      # Crucial for uploading large vector payloads/batches
       ingress.kubernetes.io/proxy-body-size: "100m"
       nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     hosts:
@@ -23,40 +22,9 @@ qdrant:
         paths:
           - path: /
             pathType: ImplementationSpecific
+            # ADD THIS PORT BLOCK BELOW:
+            port: 6333  # Qdrant's default HTTP REST port
     tls:
-      - secretName: harbor-tls-secret # Reusing your cluster TLS secret
+      - secretName: harbor-tls-secret
         hosts:
           - qdrant.westdynamics.io
-
-  # -- Production Compute Resources (Crucial for HNSW graphing threads)
-  resources:
-    limits:
-      cpu: "2"
-      memory: "4Gi"
-    requests:
-      cpu: "500m"
-      memory: "2Gi"
-
-  # -- Storage and Data State Configuration
-  persistence:
-    enabled: true
-    storageClassName: "microk8s-hostpath" # Matching your local storage layout
-    accessModes:
-      - ReadWriteOnce
-    size: "10Gi"
-
-  # -- Optional but Recommended: Dedicated Snapshot volume for backups
-  snapshotPersistence:
-    enabled: true
-    storageClassName: "microk8s-hostpath"
-    accessModes:
-      - ReadWriteOnce
-    size: "5Gi"
-
-  # -- Direct low-level Qdrant Engine Config tweaks (production.yml overrides)
-  config:
-    cluster:
-      enabled: false # Set to true only if replicaCount > 1
-    storage:
-      performance:
-        max_search_threads: 2
