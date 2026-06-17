@@ -22,8 +22,11 @@ qdrant:
         paths:
           - path: /
             pathType: ImplementationSpecific
-            # ADD THIS PORT BLOCK BELOW:
-            port: 6333  # Qdrant's default HTTP REST port
+            # FIXED STRUCTURE: Nest the port inside a backend service block
+            service:
+              name: qdrant
+              port:
+                number: 6333 # Qdrant's HTTP REST port
     tls:
       - secretName: harbor-tls-secret
         hosts:
