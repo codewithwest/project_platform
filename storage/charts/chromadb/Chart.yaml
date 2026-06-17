@@ -1,11 +1,11 @@
 apiVersion: v2
-name: my-application
-description: A Helm chart for my application bundling ChromaDB
+name: chromadb
+description: A Helm chart for ChromaDB vector store deployment
 type: application
 version: 1.0.0
-appVersion: "1.0.0"
+appVersion: "1.5.3"
 
 dependencies:
   - name: chromadb
-    version: 0.2.2  # Adjust to your desired chart version
-    repository: "https://amikos-tech.github.io/chromadb-chart/" # Change this line
+    version: 0.2.2
+    repository: "https://amikos-tech.github.io/chromadb-chart/"

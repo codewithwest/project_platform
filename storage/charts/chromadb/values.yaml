@@ -1,54 +1,36 @@
-# Default values.yaml for ChromaDB
+replicaCount: 1
 
-chromadb:
-  # -- Set true to allow clearing out/wiping the index programmatically
-  allowReset: false
-
-  # -- Enables persistent storage. The Rust server (v1.0.0+) always writes to disk; 
-  # setting this false means your data is purely ephemeral to the Pod's lifecycle.
-  isPersistent: true
-
-  # -- The directory inside the container where Chroma writes its SQLite WAL and vectors
-  persistDirectory: "/data"
-
-  # -- Volume retention policy when the Helm chart is uninstalled. 
-  # CRITICAL: Default is Delete. Switch to "Retain" if you don't want a helm uninstall to wipe your data.
-  retentionPolicyOnDelete: "Delete"
-
-  # -- Custom configuration parameters required for modern versions (1.x+) of the database
-  extraConfig: {}
-
-# -- Container Image Settings
 image:
-  repository: "ghcr.io/chroma-core/chroma"
-  pullPolicy: "IfNotPresent"
-  # -- Overrides the image tag whose default is the chart's appVersion
+  registry: ""
+  repository: ghcr.io/chroma-core/chroma
   tag: ""
+  digest: ""
+  pullPolicy: IfNotPresent
 
-# -- Resource limits and allocations
-# Single-tenant Chroma deployments are memory and CPU intensive during indexing (HNSW graph construction)
-resources:
-  requests:
-    cpu: "100m"
-    memory: "1Gi"
-  limits:
-    cpu: "1"
-    memory: "2Gi"
+initImage:
+  registry: ""
+  repository: docker.io/httpd
+  tag: "2"
+  digest: ""
+  pullPolicy: IfNotPresent
 
-# -- Persistent Volume Claim configuration
-persistentVolume:
-  enabled: true
-  accessModes:
-    - ReadWriteOnce
-  size: "10Gi"
-  storageClass: "" # Leave blank to use your cluster's default storage class
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
 
-# -- Kubernetes Service Configuration
+commonLabels: {}
+podLabels: {}
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automountServiceAccountToken: true
+
 service:
   type: ClusterIP
-  port: 8000
+  nodePort: null
 
-# -- Ingress Settings (Disabled by default)
 ingress:
   enabled: false
   className: ""
@@ -59,3 +41,91 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "1Gi"
+  limits:
+    cpu: "1"
+    memory: "2Gi"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+podSpec:
+  terminationGracePeriodSeconds: 5
+  securityContext: {}
+  podAnnotations: {}
+  annotations: {}
+  initContainers: []
+
+readinessProbe:
+  failureThreshold: 20
+  timeoutSeconds: 10
+  periodSeconds: 5
+
+livenessProbe:
+  failureThreshold: 40
+  timeoutSeconds: 10
+  periodSeconds: 5
+
+startupProbe:
+  failureThreshold: 1000
+  periodSeconds: 5
+  initialDelaySeconds: 10
+
+chromadb:
+  allowReset: false
+  isPersistent: true
+  persistDirectory: /data
+  logConfigFileLocation: /chroma/log_config.yaml
+  logConfigMap: null
+  logging:
+    root: "INFO"
+    chromadb: "DEBUG"
+    uvicorn: "INFO"
+  anonymizedTelemetry: false
+  corsAllowOrigins: []
+  serverHost: "0.0.0.0"
+  serverHttpPort: 8000
+  maxPayloadSizeBytes: "41943040"
+  data:
+    volumeSize: "10Gi"
+    storageClass: null
+    accessModes: ["ReadWriteOnce"]
+    retentionPolicyOnDelete: "Delete"
+  telemetry:
+    enabled: false
+    endpoint: ""
+    serviceName: "chroma"
+    filters: []
+  sqliteFilename: ""
+  sqliteDb:
+    hashType: ""
+    migrationMode: ""
+  circuitBreaker:
+    requests: null
+  segmentManager:
+    hnswIndexPoolCacheConfig: {}
+  maintenance:
+    collection_cache_policy: null
+    collection_cache_limit_bytes: 1000000000
+  auth:
+    enabled: true
+    type: "token"
+    existingSecret: ""
+    basic:
+      username: "chroma"
+      password: null
+    token:
+      headerType: "Authorization"
+      value: null
+  extraConfig: {}
