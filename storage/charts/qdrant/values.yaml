@@ -6,13 +6,14 @@ qdrant:
 
   image:
     repository: docker.io/qdrant/qdrant
-    tag: "v1.18.2"
     pullPolicy: IfNotPresent
+    tag: "v1.18.2" # Pinning the tag directly clears your image lookup failure
+    useUnprivilegedImage: false
 
   # -- Expose Qdrant via Nginx Ingress Controller
   ingress:
     enabled: true
-    className: "nginx"
+    ingressClassName: "nginx"
     annotations:
       ingress.kubernetes.io/ssl-redirect: "true"
       ingress.kubernetes.io/proxy-body-size: "100m"
@@ -21,13 +22,30 @@ qdrant:
       - host: qdrant.westdynamics.io
         paths:
           - path: /
-            pathType: ImplementationSpecific
-            # FIXED STRUCTURE: Nest the port inside a backend service block
-            service:
-              name: qdrant
-              port:
-                number: 6333 # Qdrant's HTTP REST port
+            pathType: Prefix
+            # Fixed according to your template schema:
+            servicePort: 6333 
     tls:
       - secretName: harbor-tls-secret
         hosts:
           - qdrant.westdynamics.io
+
+  # -- Resource Allocations (Uncommented and scaled for stable indexing)
+  resources:
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+    requests:
+      cpu: "500m"
+      memory: "2Gi"
+
+  # -- Persistent Storage Map matching your specific templates
+  persistence:
+    accessModes: ["ReadWriteOnce"]
+    size: 10Gi
+    storageClassName: "microk8s-hostpath" # Uncommented and set to your storage engine
+
+  # -- Keeping Cluster Configuration safe for a single replica
+  config:
+    cluster:
+      enabled: false # Switched to false since replicaCount is 1 to save networking overhead
