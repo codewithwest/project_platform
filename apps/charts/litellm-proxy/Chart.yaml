@@ -1,0 +1,6 @@
+apiVersion: v2
+name: litellm-proxy
+description: A Helm chart for LiteLLM proxy deployment
+type: application
+version: 0.0.3
+appVersion: "main-stable"

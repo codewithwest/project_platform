@@ -1,0 +1,103 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/berriai/litellm-database
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+podDisruptionBudget:
+  create: false
+  minAvailable: 1
+
+env:
+  LITELLM_LOG: "ERROR"
+  LITELLM_MODE: "PRODUCTION"
+
+secretFrom: {}
+
+envFromSecretRefs: []
+
+extraObjects: []
+
+service:
+  type: ClusterIP
+  port: 4000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: llm-proxy.westdynamics.io
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources: {}
+
+livenessProbe:
+  httpGet:
+    path: /health/liveliness
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /health/readiness
+    port: http
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+volumes: []
+
+volumeMounts: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+proxy_config:
+  model_list:
+    - model_name: fake-openai-endpoint
+      litellm_params:
+        model: openai/fake
+        api_key: fake-key
+        api_base: https://exampleopenaiendpoint-production.up.railway.app/
+
+  general_settings:
+    master_key: os.environ/PROXY_MASTER_KEY
+    alerting: []
+    proxy_batch_write_at: 60
+    database_connection_pool_limit: 10
+    disable_spend_logs: false
+    disable_error_logs: false
+
+  litellm_settings:
+    request_timeout: 600
+    set_verbose: false
+    json_logs: true
+
+hooks:
+  migration:
+    enabled: true
+    command: |
+      python litellm/proxy/prisma_migration.py
+    resources: {}
