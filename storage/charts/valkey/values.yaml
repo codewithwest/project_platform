@@ -1,12 +1,62 @@
-persistence:
-  enabled: true
-  size: 5Gi
-  storageClass: standard
+# ==========================================
+# Valkey (Redis Replacement) Deployment Setup
+# ==========================================
+valkey:
+  replicaCount: 1
 
-resources:
-  requests:
-    cpu: 100m
-    memory: 256Mi
-  limits:
-    cpu: 200m
-    memory: 500Mi
+  image:
+    repository: docker.io/valkey/valkey
+    tag: "8.1.8" # Pinning to a specific LTS stable release 
+    pullPolicy: IfNotPresent
+
+  # -- Authentication Configuration (Crucial for an open key-value store)
+  auth:
+    enabled: true
+    # Rather than passing plaintext here, map ACL users via existing secrets 
+    # if required, or let Helm auto-generate a secure token.
+    aclUsers:
+      default:
+        password: "ChooseASecurePassword123!" 
+        permissions: "~* &* +@all" # Standard full administrative access permissions
+
+  # -- Expose Valkey via Nginx Ingress Controller (Optional, mainly if using HTTP proxy plugins)
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    hosts:
+      - host: valkey.westdynamics.io
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: harbor-tls-secret
+        hosts:
+          - valkey.westdynamics.io
+
+  # -- Direct low-level engine config parameters (`valkey.conf` lines)
+  valkeyConfig: |
+    appendonly yes
+    appendfsync everysec
+    maxmemory 2gb
+    maxmemory-policy allkeys-lru
+
+  # -- Production Compute Resources (Tailored for high throughput caching)
+  resources:
+    limits:
+      cpu: "1"
+      memory: "3Gi" # Give overhead room above your maxmemory setting to avoid OOMKills
+    requests:
+      cpu: "250m"
+      memory: "1.5Gi"
+
+  # -- Persistent Volume Configuration for Append-Only Files (AOF)
+  persistence:
+    enabled: true
+    storageClassName: "microk8s-hostpath" # Matching your local microk8s environment
+    accessModes:
+      - ReadWriteOnce
+    size: "8Gi"
