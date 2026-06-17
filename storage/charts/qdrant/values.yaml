@@ -26,7 +26,7 @@ qdrant:
             # Fixed according to your template schema:
             servicePort: 6333 
     tls:
-      - secretName: harbor-tls-secret
+      - secretName: qdrant-tls-secret
         hosts:
           - qdrant.westdynamics.io
 
