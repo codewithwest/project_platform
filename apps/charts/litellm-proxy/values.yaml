@@ -26,10 +26,15 @@ podDisruptionBudget:
 env:
   LITELLM_LOG: "ERROR"
   LITELLM_MODE: "PRODUCTION"
+  DATABASE_USERNAME: "llmproxy"
+  DATABASE_HOST: "postgres-postgresql.storage.svc.cluster.local"
+  DATABASE_NAME: "litellm"
+  DATABASE_PORT: "5432"
 
 secretFrom: {}
 
-envFromSecretRefs: []
+envFromSecretRefs:
+  - litellm-proxy-secret
 
 extraObjects: []
 
