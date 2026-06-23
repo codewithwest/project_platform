@@ -32,6 +32,7 @@ This is a documentation for the project platform, this is all the steps required
 - [Argo CD for Microk8s](./services/charts/argo/microk8s.md) or [Argo CD for Minikube](./services/charts/argo/minikube.md)
 - [Jenkins](./services/charts/jenkins/readme.md)
 - [Custom 404 Setup](./docs/404-setup.md)
+- [PostgreSQL](./storage/charts/postgres/readme.md)
 
 ## Deployment reusables
 
