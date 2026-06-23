@@ -8,10 +8,7 @@ auth:
   username: postgres
   database: n8n
 
-  # existingSecret: postgres-credentials
-  # secretKeys:
-  #   adminPasswordKey: postgres-password
-  #   userPasswordKey: password
+  existingSecret: postgres-secret
 
 resources:
   requests:
