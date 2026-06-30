@@ -1,5 +1,12 @@
+# Chart source: https://helm.goharbor.io
+# Chart name: harbor
+# Chart version: 1.15.0
+#
+# Deploy:
+#   microk8s helm dependency build services/harbor/
+#   microk8s helm install harbor services/harbor/ -n management
+
 harbor:
-  # 1. Update the hostname and externalURL to use HTTPS (No ports)
   hostname: harbor.westdynamics.io
   externalURL: https://harbor.westdynamics.io
   harborAdminPassword: ""
@@ -32,15 +39,15 @@ harbor:
       registry:
         storageClass: microk8s-hostpath
         accessMode: ReadWriteOnce
-        size: 5Gi
+        size: 15Gi
       chartmuseum:
         storageClass: microk8s-hostpath
         accessMode: ReadWriteOnce
-        size: 1Gi
+        size: 2Gi
       jobservice:
         storageClass: microk8s-hostpath
         accessMode: ReadWriteOnce
-        size: 1Gi
+        size: 2Gi
 
   portal:
     replicas: 1
