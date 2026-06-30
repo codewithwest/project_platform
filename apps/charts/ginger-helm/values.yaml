@@ -1,57 +1,86 @@
-# Global settings
 global:
   namespace: applications
 
-# Ginger Application Settings
 ginger:
-  image: ghcr.io/codewithwest/ginger-framework:devlatest
-  tag: latest
-  replicas: 1
-  service:
+  api:
+    image:
+      repository: ghcr.io/codewithwest/ginger-api
+      tag: latest
+      pullPolicy: Always
+    replicas: 1
     port: 8007
-  storage:
-    modelsPvcName: ginger-models-pvc
-    modelsSize: 10Gi
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "1"
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8007
+      initialDelaySeconds: 30
+      periodSeconds: 15
+      timeoutSeconds: 5
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 8007
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      timeoutSeconds: 5
 
-# Ginger Worker Settings
-worker:
-  image: ghcr.io/codewithwest/ginger-worker:devlatest
-  tag: latest
-  replicas: 1
-  command: ["python", "src/infrastructure/queue/worker.py"]
+  ui:
+    image:
+      repository: ghcr.io/codewithwest/ginger-ui
+      tag: latest
+      pullPolicy: Always
+    replicas: 1
+    port: 80
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "128Mi"
+        cpu: "200m"
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 80
+      initialDelaySeconds: 10
+      periodSeconds: 15
+    readinessProbe:
+      httpGet:
+        path: /
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 10
 
-# LiteLLM Settings
-litellm:
-  image: ghcr.io/berriai/litellm:main-stable
-  tag: main-stable
-  replicas: 1
-  port: 4000
-  config:
-    # Add litellm-config.yaml content here or via a separate file
-    configYaml: |
-      model_list:
-        - model_name: gpt-3.5-turbo
-          litellm_params:
-            model: gpt-3.5-turbo
-            api_key: "os.environ/LITELLM_API_KEY"
+imagePullSecrets: []
 
-# Valkey (Redis drop-in replacement)
-valkey:
-  image: valkey/valkey:latest
-  replicas: 1
-  persistence:
-    size: 1Gi
+ingress:
+  enabled: true
+  className: nginx
+  host: ginger.westdynamics.io
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "86400s"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400s"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
 
-# ChromaDB
-chromadb:
-  image: chromadb/chroma:latest
-  tag: latest
-  replicas: 1
-  persistence:
-    enabled: true
-    size: 10Gi
+config:
+  SERVICE_ROLE: "api"
+  CHROMA_HTTP_HOST: "ginger-chromadb.storage.svc.cluster.local"
+  CHROMA_HTTP_PORT: "8000"
+  QDRANT_HOST: "ginger-qdrant.storage.svc.cluster.local"
+  QDRANT_PORT: "6333"
+  AGENTS_API_AUTH_DISABLED: "1"
+  LITELLM_PROXY_URL: "http://litellm-proxy-litellm-proxy.applications.svc.cluster.local:4000"
+  OLLAMA_BASE_URL: "http://ollama.applications.svc.cluster.local:11434"
+  VISION_SERVICE_URL: "http://ginger-vision.applications.svc.cluster.local:8008"
+  AUDIO_SERVICE_URL: "http://ginger-audio.applications.svc.cluster.local:8009"
+  FLASK_INTERNAL_URL: "http://ginger-api.applications.svc.cluster.local:8007"
 
-# Secrets (Use --set or a separate secrets.yaml for production)
 secrets:
-  litellmDbUrl: ""
-  litellmApiKey: ""
+  existingSecretName: "ginger-api-secret"

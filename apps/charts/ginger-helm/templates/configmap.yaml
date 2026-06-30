@@ -5,8 +5,6 @@ metadata:
   labels:
     {{- include "ginger.labels" . | nindent 4 }}
 data:
-  litellm-config.yaml: |
-{{ .Values.litellm.config.configYaml | indent 4 }}
-  # Add other config keys from the original configmap.yaml here
-  # Example:
-  # APP_ENV: "production"
+{{- range $key, $value := .Values.config }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}

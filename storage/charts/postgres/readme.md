@@ -10,19 +10,19 @@ PostgreSQL is deployed as a Bitnami Helm chart via ArgoCD in the `storage` names
 
 ```yaml
 auth:
-  username: postgres     # Built-in superuser (leave as postgres or change)
-  database: <db-name>    # Database to create on first init
-  existingSecret: postgres-secret  # Use SealedSecret instead of auto-generated
+  username: postgres # Built-in superuser (leave as postgres or change)
+  database: <db-name> # Database to create on first init
+  existingSecret: postgres-secret # Use SealedSecret instead of auto-generated
 ```
 
 ### Secret key mapping
 
 The SealedSecret `postgres-secret` contains these keys:
 
-| Key | Purpose | Chart default |
-|---|---|---|
+| Key                 | Purpose                         | Chart default       |
+| ------------------- | ------------------------------- | ------------------- |
 | `postgres-password` | Superuser (`postgres`) password | `postgres-password` |
-| `password` | App user password | `password` |
+| `password`          | App user password               | `password`          |
 
 ## Getting passwords
 
@@ -87,9 +87,9 @@ GRANT ALL ON SCHEMA public TO <username>;
 
 Some services use PostgreSQL and require the database and user to exist. These are **not** created by the PostgreSQL chart — they must be created manually or via the app's own migration job.
 
-| Service | Namespace | DB Name | DB User | Auth |
-|---|---|---|---|---|
-| **n8n** | applications | `n8n` | `n8n` | Uses `n8n-secret` SealedSecret in `applications` ns |
+| Service           | Namespace    | DB Name   | DB User    | Auth                                                          |
+| ----------------- | ------------ | --------- | ---------- | ------------------------------------------------------------- |
+| **n8n**           | applications | `n8n`     | `n8n`      | Uses `n8n-secret` SealedSecret in `applications` ns           |
 | **LiteLLM Proxy** | applications | `litellm` | `llmproxy` | Uses `litellm-proxy-secret` SealedSecret in `applications` ns |
 
 To set up a dependent service's database:
@@ -111,13 +111,22 @@ GRANT ALL ON SCHEMA public TO <username>;
   Readiness probe failed: dial tcp ...:4000: connect: connection refused
   Liveness probe failed: dial tcp ...:4000: connect: connection refused
   ```
+- After creating the DB and user, if the migration fails with `permission denied for schema public`, grant schema permissions:
+  ```sql
+  GRANT ALL ON SCHEMA public TO llmproxy;
+  GRANT ALL PRIVILEGES ON DATABASE litellm TO llmproxy;
+  ```
+- Then run the migration manually inside the pod:
+  ```sh
+  kubectl exec -it -n applications <pod-name> -- python litellm/proxy/prisma_migration.py
+  ```
 
 ## Common issues
 
-| Problem | Cause | Fix |
-|---|---|---|
-| Password auth fails after redeploy | Old PVC retains previous password hash | Delete PVC (Option A) |
-| `existingSecret` not taking effect | ArgoCD out of sync or not committed | Commit & push, then sync |
-| Pod stuck `Terminating` on PVC delete | PVC stuck with finalizer | `kubectl delete pvc <name> -n storage --force --grace-period=0` |
-| Role "n8n" does not exist | DB initialized without creating the user | Create user manually (Option C) |
-| LiteLLM proxy crash loop | `litellm` DB or `llmproxy` user missing in PostgreSQL | Create DB + user, restart pod |
+| Problem                               | Cause                                                 | Fix                                                             |
+| ------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------- |
+| Password auth fails after redeploy    | Old PVC retains previous password hash                | Delete PVC (Option A)                                           |
+| `existingSecret` not taking effect    | ArgoCD out of sync or not committed                   | Commit & push, then sync                                        |
+| Pod stuck `Terminating` on PVC delete | PVC stuck with finalizer                              | `kubectl delete pvc <name> -n storage --force --grace-period=0` |
+| Role "n8n" does not exist             | DB initialized without creating the user              | Create user manually (Option C)                                 |
+| LiteLLM proxy crash loop              | `litellm` DB or `llmproxy` user missing in PostgreSQL | Create DB + user, restart pod                                   |

@@ -33,6 +33,7 @@ This is a documentation for the project platform, this is all the steps required
 - [Jenkins](./services/charts/jenkins/readme.md)
 - [Custom 404 Setup](./docs/404-setup.md)
 - [PostgreSQL](./storage/charts/postgres/readme.md)
+- [Ginger AI](./apps/charts/ginger-helm/readme.md)
 
 ## Deployment reusables
 

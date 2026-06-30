@@ -22,6 +22,21 @@ newgrp microk8s
 sudo chown -f -R $USER ~/.kube
 ```
 
+## Post-restart recovery (Proxmox / power loss)
+
+After a Proxmox host restart, MicroK8s and DNS may be out of sync. Restore DNS first:
+
+```bash
+sudo systemctl enable --now systemd-resolved
+```
+
+This re-enables systemd-resolved (which is normally disabled for Pi-hole). MicroK8s requires it for internal DNS resolution. If MicroK8s still doesn't work:
+
+```bash
+microk8s start
+microk8s status --wait-ready
+```
+
 ## 3. Enable microk8s addons
 
 ### Enable the internal Registry & Storage:

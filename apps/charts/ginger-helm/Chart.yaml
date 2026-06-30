@@ -1,6 +1,6 @@
 apiVersion: v2
 name: ginger
-description: A Helm chart for Ginger AI application
+description: Ginger AI platform (API + UI)
 type: application
 version: 0.1.0
 appVersion: "1.0.0"

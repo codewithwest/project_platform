@@ -1,62 +1,33 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "ginger.fullname" . }}-app
+  name: {{ include "ginger.fullname" . }}-api
   labels:
     {{- include "ginger.labels" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
-    - port: {{ .Values.ginger.service.port }}
-      targetPort: {{ .Values.ginger.service.port }}
+    - port: {{ .Values.ginger.api.port }}
+      targetPort: {{ .Values.ginger.api.port }}
       protocol: TCP
       name: http
   selector:
-    {{- include "ginger.selectorLabels" . | nindent 6 }}
-    component: app
+    {{- include "ginger.selectorLabels" . | nindent 4 }}
+    component: api
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "ginger.fullname" . }}-litellm
+  name: {{ include "ginger.fullname" . }}-ui
   labels:
     {{- include "ginger.labels" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
-    - port: {{ .Values.litellm.port }}
-      targetPort: {{ .Values.litellm.port }}
+    - port: {{ .Values.ginger.ui.port }}
+      targetPort: {{ .Values.ginger.ui.port }}
       protocol: TCP
       name: http
   selector:
-    {{- include "ginger.selectorLabels" . | nindent 6 }}
-    component: litellm
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "ginger.fullname" . }}-valkey
-  labels:
-    {{- include "ginger.labels" . | nindent 4 }}
-spec:
-  type: ClusterIP
-  ports:
-    - port: 6379
-      targetPort: 6379
-      protocol: TCP
-      name: redis
-  selector:
-    {{- include "ginger.selectorLabels" . | nindent 6 }}
-    component: valkey
-  labels:
-    {{- include "ginger.labels" . | nindent 4 }}
-spec:
-  type: ClusterIP
-  ports:
-    - port: 8000
-      targetPort: 8000
-      protocol: TCP
-      name: http
-  selector:
-    {{- include "ginger.selectorLabels" . | nindent 6 }}
-    component: chromadb
+    {{- include "ginger.selectorLabels" . | nindent 4 }}
+    component: ui

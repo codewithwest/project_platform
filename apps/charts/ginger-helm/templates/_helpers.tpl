@@ -3,12 +3,8 @@
 {{- end -}}
 
 {{- define "ginger.fullname" -}}
-{{- $name := template "ginger.name" . -}}
-{{- if hasKey .Values.global "namespace" -}}
-{{- printf "%s-%s" .Values.global.namespace $name | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
+{{- $name := include "ginger.name" . -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
 {{- end -}}
 
 {{- define "ginger.labels" -}}

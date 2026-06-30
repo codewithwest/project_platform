@@ -1,3 +1,4 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -5,15 +6,41 @@ metadata:
   labels:
     {{- include "ginger.labels" . | nindent 4 }}
   annotations:
-    kubernetes.io/ingress.class: nginx
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
-    - http:
+    - host: {{ .Values.ingress.host }}
+      http:
         paths:
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "ginger.fullname" . }}-api
+                port:
+                  number: {{ .Values.ginger.api.port }}
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "ginger.fullname" . }}-api
+                port:
+                  number: {{ .Values.ginger.api.port }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "ginger.fullname" . }}-api
+                port:
+                  number: {{ .Values.ginger.api.port }}
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ include "ginger.fullname" . }}-app
+                name: {{ include "ginger.fullname" . }}-ui
                 port:
-                  number: {{ .Values.ginger.service.port }}
+                  number: {{ .Values.ginger.ui.port }}
+{{- end }}
