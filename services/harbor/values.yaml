@@ -2,7 +2,8 @@ harbor:
   # 1. Update the hostname and externalURL to use HTTPS (No ports)
   hostname: harbor.westdynamics.io
   externalURL: https://harbor.westdynamics.io
-  harborAdminPassword: "admin123"
+  harborAdminPassword: ""
+  existingSecretAdminPassword: harbor-admin-secret
 
   expose:
     # 2. Switch from nodePort to ingress
