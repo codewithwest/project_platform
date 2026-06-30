@@ -18,7 +18,10 @@ harbor:
     tls:
       enabled: true
       certSource: secret
-      # This refers to the K8s secret containing your SSL certs
+      # K8s TLS secret containing cert for harbor.westdynamics.io
+      # Create with: kubectl create secret tls harbor-tls-secret -n management \
+      #   --cert=wildcard.crt --key=wildcard.key
+      # See README.md §4 for wildcard cert generation
       secretName: harbor-tls-secret
       commonName: "harbor.westdynamics.io"
 

@@ -1,0 +1,120 @@
+properties([
+  parameters([
+    string(defaultValue: 'main', description: 'Branch to build', name: 'BRANCH')
+  ])
+])
+
+podTemplate(
+  label: 'ginger-builder',
+  containers: [
+    containerTemplate(
+      name: 'docker',
+      image: 'docker:28-cli',
+      command: 'cat',
+      ttyEnabled: true
+    )
+  ],
+  volumes: [
+    hostPathVolume(
+      hostPath: '/var/run/docker.sock',
+      mountPath: '/var/run/docker.sock'
+    )
+  ]
+) {
+  node('ginger-builder') {
+    env.HARBOR_URL = 'harbor.westdynamics.io'
+    env.HARBOR_PROJECT = 'ginger'
+    env.DOCKER_BUILDKIT = '1'
+
+    stage('Checkout') {
+      container('docker') {
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: "*/${params.BRANCH}"]],
+          userRemoteConfigs: [[url: 'https://github.com/codewithwest/project_ginger.git', credentialsId: 'github-credentials']],
+          extensions: []
+        ])
+      }
+    }
+
+    stage('Build & Push ginger-api') {
+      container('docker') {
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'harbor-credentials',
+            usernameVariable: 'HARBOR_USER',
+            passwordVariable: 'HARBOR_PASS'
+          )
+        ]) {
+          sh """
+            docker login '${env.HARBOR_URL}' -u '${HARBOR_USER}' -p '${HARBOR_PASS}'
+            docker build -f docker/Dockerfile.api -t ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-api:\${BUILD_NUMBER} .
+            docker tag ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-api:\${BUILD_NUMBER} ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-api:latest
+            docker push ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-api:\${BUILD_NUMBER}
+            docker push ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-api:latest
+          """
+        }
+      }
+    }
+
+    stage('Build & Push ginger-ui') {
+      container('docker') {
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'harbor-credentials',
+            usernameVariable: 'HARBOR_USER',
+            passwordVariable: 'HARBOR_PASS'
+          )
+        ]) {
+          sh """
+            docker login '${env.HARBOR_URL}' -u '${HARBOR_USER}' -p '${HARBOR_PASS}'
+            docker build -f docker/Dockerfile.ui -t ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-ui:\${BUILD_NUMBER} .
+            docker tag ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-ui:\${BUILD_NUMBER} ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-ui:latest
+            docker push ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-ui:\${BUILD_NUMBER}
+            docker push ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-ui:latest
+          """
+        }
+      }
+    }
+
+    stage('Build & Push ginger-vision') {
+      container('docker') {
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'harbor-credentials',
+            usernameVariable: 'HARBOR_USER',
+            passwordVariable: 'HARBOR_PASS'
+          )
+        ]) {
+          sh """
+            docker login '${env.HARBOR_URL}' -u '${HARBOR_USER}' -p '${HARBOR_PASS}'
+            docker build -f docker/Dockerfile.vision -t ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-vision:\${BUILD_NUMBER} .
+            docker tag ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-vision:\${BUILD_NUMBER} ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-vision:latest
+            docker push ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-vision:\${BUILD_NUMBER}
+            docker push ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-vision:latest
+          """
+        }
+      }
+    }
+
+    stage('Build & Push ginger-worker') {
+      container('docker') {
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'harbor-credentials',
+            usernameVariable: 'HARBOR_USER',
+            passwordVariable: 'HARBOR_PASS'
+          )
+        ]) {
+          sh """
+            docker login '${env.HARBOR_URL}' -u '${HARBOR_USER}' -p '${HARBOR_PASS}'
+            docker build -f docker/Dockerfile.worker -t ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-worker:\${BUILD_NUMBER} .
+            docker tag ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-worker:\${BUILD_NUMBER} ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-worker:latest
+            docker push ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-worker:\${BUILD_NUMBER}
+            docker push ${env.HARBOR_URL}/${env.HARBOR_PROJECT}/ginger-worker:latest
+          """
+        }
+      }
+    }
+  }
+}

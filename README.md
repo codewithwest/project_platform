@@ -33,6 +33,7 @@ This is a documentation for the project platform, this is all the steps required
 - [Jenkins](./services/charts/jenkins/readme.md)
 - [Custom 404 Setup](./docs/404-setup.md)
 - [PostgreSQL](./storage/charts/postgres/readme.md)
+- [Harbor Registry](./services/charts/harbor/values.yaml)
 - [Ginger AI](./apps/charts/ginger-helm/readme.md)
 
 ## Deployment reusables
@@ -212,4 +213,44 @@ helm upgrade <release-name> services/charts/<service-name> -n management --insta
 ### 3. Key Services
 - **Argo CD**: [argo.westdynamics.io](https://argo.westdynamics.io)
 - **Jenkins**: [jenkins.westdynamics.io](https://jenkins.westdynamics.io)
+- **Harbor**: [harbor.westdynamics.io](https://harbor.westdynamics.io) — Container registry
 - **Error Handler**: Automated via Argo CD ExtraObjects
+
+### 4. TLS Certificates
+
+All services use wildcard TLS certs for `*.westdynamics.io`. TLS secrets must exist in the cluster before ingress becomes functional:
+
+```sh
+# Generate a wildcard cert
+openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes \
+  -keyout ca.key -out ca.crt -subj "/CN=WestDynamics CA"
+openssl req -newkey rsa:4096 -sha256 -nodes \
+  -keyout wildcard.key -out wildcard.csr -subj "/CN=*.westdynamics.io"
+openssl x509 -req -in wildcard.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -out wildcard.crt -days 365 -sha256 \
+  -extfile <(echo "subjectAltName=DNS:*.westdynamics.io")
+
+# Create/update a TLS secret
+kubectl create secret tls <secret-name> -n <namespace> \
+  --cert=wildcard.crt --key=wildcard.key --dry-run=client -o yaml \
+  | kubectl apply -f -
+
+# Trust the CA for Docker on the host
+sudo cp wildcard.crt /usr/local/share/ca-certificates/westdynamics-ca.crt
+sudo update-ca-certificates
+sudo systemctl restart docker
+```
+
+TLS secrets used by service:
+
+| Service | Secret Name | Ingress |
+|---|---|---|
+| Harbor | `harbor-tls-secret` | `harbor.westdynamics.io` |
+| Jenkins | `jenkins-tls-secret` | `jenkins.westdynamics.io` |
+| ArgoCD | `argocd-server-tls` | `argo.westdynamics.io` |
+| n8n | `n8n-tls-secret` | `n8n.westdynamics.io` |
+| Litellm | `llm-proxy-tls-secret` | `llm-proxy.westdynamics.io` |
+| Qdrant | `qdrant-tls-secret` | `qdrant.westdynamics.io` |
+| ChromaDB | `chromadb-tls-secret` | `chromadb.westdynamics.io` |
+| Valkey | `valkey-tls-secret` | `valkey.westdynamics.io` |
+| Docs | `docs-tls-secret` | `docs.westdynamics.io` |
