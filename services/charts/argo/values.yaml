@@ -35,7 +35,7 @@ argo:
     # Managed Ingress
     ingress:
       enabled: true
-      ingressClassName: nginx
+      ingressClassName: public
       annotations:
         nginx.ingress.kubernetes.io/ssl-redirect: "true"
         nginx.ingress.kubernetes.io/backend-protocol: "HTTP"

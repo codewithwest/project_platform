@@ -216,7 +216,11 @@ helm upgrade <release-name> services/charts/<service-name> -n management --insta
 - **Harbor**: [harbor.westdynamics.io](https://harbor.westdynamics.io) — Container registry
 - **Error Handler**: Automated via Argo CD ExtraObjects
 
-### 4. TLS Certificates
+### 4. Ingress Controller
+
+The cluster uses **Traefik** as the ingress controller (replacing Ingress NGINX which was retired March 2026). All Ingress resources use `ingressClassName: public` to route through Traefik.
+
+### 5. TLS Certificates
 
 All services use wildcard TLS certs for `*.westdynamics.io`. TLS secrets must exist in the cluster before ingress becomes functional:
 

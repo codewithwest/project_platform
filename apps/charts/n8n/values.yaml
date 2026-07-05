@@ -170,7 +170,7 @@ n8n:
 
   ingress:
     enabled: true
-    className: nginx
+    className: public
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "50m"
       # Add these three lines:

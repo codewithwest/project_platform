@@ -13,10 +13,10 @@ qdrant:
   # -- Expose Qdrant via Nginx Ingress Controller
   ingress:
     enabled: true
-    ingressClassName: "nginx"
+    ingressClassName: "public"
     annotations:
-      ingress.kubernetes.io/ssl-redirect: "true"
-      ingress.kubernetes.io/proxy-body-size: "100m"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "100m"
       nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     hosts:
       - host: qdrant.westdynamics.io

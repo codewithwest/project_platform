@@ -44,7 +44,7 @@ service:
 
 ingress:
   enabled: true
-  className: nginx
+  className: public
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
   hosts:
