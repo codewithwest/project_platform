@@ -3,27 +3,75 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Architecture Direction](#architecture-direction)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [AX Agent Orchestration](#ax-agent-orchestration)
 - [Deployment Reusables](#deployment-reusables)
 - [Alias](#alias)
 
 ## Overview
 
-This is a documentation for the project platform, this is all the steps required to setup the platform for using with a proxmox->ubuntu->minikube setup
+This repository contains the infrastructure and platform configuration used to build the Dragonslur platform.
+
+The platform direction is **bare-metal Ubuntu + K3s**, with persistent storage and database services managed inside Kubernetes. Legacy documentation for Proxmox, Minikube and MicroK8s remains below where applicable, but new Dragonslur work should target K3s.
+
+## Architecture Direction
+
+```text
+Bare-metal Ubuntu
+        │
+        ▼
+       K3s
+        │
+ ┌──────┼─────────────────────────────┐
+ │      │                             │
+ ▼      ▼                             ▼
+Longhorn  CloudNativePG        Platform Services
+ │        │                             │
+ └────────┴──────────────┬──────────────┘
+                         │
+                         ▼
+                AX Agent Runtime
+                         │
+                         ▼
+                  G.I.N.G.E.R.
+```
+
+The intended separation is:
+
+- **Dragonslur / Project Platform** — infrastructure, Kubernetes, networking, storage, databases and platform services.
+- **AX** — isolated autonomous agent execution and task orchestration.
+- **G.I.N.G.E.R.** — planning, reasoning, memory, user interaction and delegation decisions.
+- **Tooling Control Center** — management of tools, MCP servers, skills, workspaces, models and agent tasks.
+
+## Features
+
+- K3s-based platform infrastructure
+- Persistent storage with Longhorn
+- PostgreSQL with CloudNativePG
+- Helm-based service deployment
+- Traefik ingress
+- Argo CD deployment workflows
+- Jenkins CI/CD
+- Harbor container registry
+- G.I.N.G.E.R. AI platform integration
+- Planned AX agent orchestration layer
 
 ## Prerequisites
 
-- Proxmox
-- Ubuntu
+- Ubuntu Server
+- K3s
 - Kubectl
-- Minikube
+- Helm
+- Longhorn prerequisites
+- CloudNativePG
+
+Legacy deployment documentation may also reference Proxmox, Minikube or MicroK8s.
 
 ## Installation
 
-- [Proxmox](https://www.proxmox.com/en/proxmox-ve)
-- [Ubuntu](https://ubuntu.com/download)
 - [Nginx Service](./docs/nginx-service.md)
 - [App Expose](./docs/app-expose.md)
 - [Minikube](./docs/minikube-setup.md) or [Microk8s](./docs/microk8s.md)
@@ -35,6 +83,27 @@ This is a documentation for the project platform, this is all the steps required
 - [PostgreSQL](./storage/charts/postgres/readme.md)
 - [Harbor Registry](./services/charts/harbor/values.yaml)
 - [Ginger AI](./apps/charts/ginger-helm/readme.md)
+- [AX Agent Orchestration Plan](./docs/ax-integration.md)
+
+## AX Agent Orchestration
+
+AX is planned as an **experimental agent execution substrate on top of Dragonslur/K3s**. It is not intended to replace K3s, Longhorn, CloudNativePG or the existing platform services.
+
+The implementation plan covers:
+
+- Dedicated `ax-system` namespace
+- Isolated AX Tasks with CPU/memory limits
+- Workspace-based Git/MCP/skill capabilities
+- Gateway-based network restrictions
+- Centralized model configuration
+- Ginger-to-AX task delegation
+- Tooling Control Center integration
+- Task lifecycle and result collection
+- Security, quotas, observability and rollback
+
+See the full [AX Agent Orchestration Integration Plan](./docs/ax-integration.md).
+
+AX should remain isolated while its upstream APIs and concepts are still evolving.
 
 ## Deployment reusables
 
@@ -49,7 +118,6 @@ kubectl logs jenkins-0 -n management -c init
 ```sh
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
 
 # If not running interactively, don't do anything
 case $- in
@@ -57,48 +125,17 @@ case $- in
       *) return;;
 esac
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
 HISTCONTROL=ignoreboth
-
-# append to the history file, don't overwrite it
 shopt -s histappend
-
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
 
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
-
-# If set, the pattern "**" used in a pathname expansion context will
-# match all files and zero or more directories and subdirectories.
-#shopt -s globstar
-
-# make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-# set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
-fi
-
-# set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
 esac
 
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-#force_color_prompt=yes
-
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-        # We have color support; assume it's compliant with Ecma-48
-        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-        # a case would tend to support setf rather than setaf.)
         color_prompt=yes
     else
         color_prompt=
@@ -112,51 +149,22 @@ else
 fi
 unset color_prompt force_color_prompt
 
-# If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
-
-# enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
 
-# colored GCC warnings and errors
-#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-# some more ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
@@ -164,9 +172,6 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-
-
-
 
 ### Kubectl aliases
 alias get-pods="kubectl get pods"
@@ -190,7 +195,6 @@ alias k-apply="kubectl -f apply"
 alias edit-nginx="nano /etc/nginx/sites-available/minikube-proxy.conf"
 alias test-nginx="nginx -t"
 alias restart-nginx="systemctl restart nginx"
-# Add this to your ~/.bashrc if you want to use the built-in helm
 alias helm='microk8s helm3'
 ```
 
@@ -199,18 +203,23 @@ alias helm='microk8s helm3'
 Since this repository now uses **Wrapper Charts** to manage configurations and dependencies, the deployment process has been simplified:
 
 ### 1. Build Dependencies
+
 Before running Helm for the first time or after a Chart.yaml update:
+
 ```sh
 helm dependency build services/charts/<service-name>
 ```
 
 ### 2. Deploy/Upgrade
+
 Apply your `values.yaml` and configurations in one go:
+
 ```sh
 helm upgrade <release-name> services/charts/<service-name> -n management --install
 ```
 
 ### 3. Key Services
+
 - **Argo CD**: [argo.westdynamics.io](https://argo.westdynamics.io)
 - **Jenkins**: [jenkins.westdynamics.io](https://jenkins.westdynamics.io)
 - **Harbor**: [harbor.westdynamics.io](https://harbor.westdynamics.io) — Container registry
@@ -225,7 +234,6 @@ The cluster uses **Traefik** as the ingress controller (replacing Ingress NGINX 
 All services use wildcard TLS certs for `*.westdynamics.io`. TLS secrets must exist in the cluster before ingress becomes functional:
 
 ```sh
-# Generate a wildcard cert
 openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes \
   -keyout ca.key -out ca.crt -subj "/CN=WestDynamics CA"
 openssl req -newkey rsa:4096 -sha256 -nodes \
@@ -234,12 +242,10 @@ openssl x509 -req -in wildcard.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
   -out wildcard.crt -days 365 -sha256 \
   -extfile <(echo "subjectAltName=DNS:*.westdynamics.io")
 
-# Create/update a TLS secret
 kubectl create secret tls <secret-name> -n <namespace> \
   --cert=wildcard.crt --key=wildcard.key --dry-run=client -o yaml \
   | kubectl apply -f -
 
-# Trust the CA for Docker on the host
 sudo cp wildcard.crt /usr/local/share/ca-certificates/westdynamics-ca.crt
 sudo update-ca-certificates
 sudo systemctl restart docker
